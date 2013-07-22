@@ -10,6 +10,8 @@ There are several job types available:
  * Docbuild - are built and uploaded to the master. Currently triggered nightly. In the future, a more elegant way of locating files correctly should be used.
 
 ##Comparison with ROS buildfarm
+Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_ is still used to create gbp releases. _git-buildpackage_ is used to generate debians from the _Bloom_ releases, using _cowbuilder_ to build in a chroot rather than _pbuilder_. _reprepro_ is used to update the APT repository.
+
 ###Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a Python script, which I found to be more approachable than scripting Jenkins. 
  * Currently, we build source and binary debians for an entire repository, which can consist of several packages and a metapackage, as one job per ROS/Ubuntu distribution combination.
