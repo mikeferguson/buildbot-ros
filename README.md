@@ -15,10 +15,9 @@ Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_
 ###Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a Python script, which I found to be more approachable than scripting Jenkins. 
  * Currently, we build source and binary debians for an entire repository, which can consist of several packages and a metapackage, as one job per ROS/Ubuntu distribution combination.
- * The order of depenedencies between packages (and between repositories) must be specified in the build configuration. In the future this should be read from a rosdistro file and automatically generated, as done on the ROS buildfarm.
+ * The order of dependencies between packages (and between repositories) must be specified in the build configuration. In the future this should be read from a rosdistro file and automatically generated, as done on the ROS buildfarm.
 
 ###Known Limitations:
- * At present, the reprepro job runs on the slave, if the slave is a different machine from the master, this will fail. In the future, this should be changed to be a master-script buildstep, based on the uploaded file.
  * There is not yet a rosdistro tie-in to read the state of the rosdistro, determine updates, and trigger updated jobs. This is planned, but not implemented. In the meantime, debian builds are simply run nightly (and of course, are easily triggerable).
  * Buildtest jobs only work on git repositories.
 
@@ -42,8 +41,12 @@ At this point, you have a master, with the default configuration. You'll want to
 
 To actually have debbuilders succeed, you'll need to create the APT repository for debs to be installed into, as 'buildbot':
 
-    cd buildbot-ros/setup
-    ./apt_repo.bash YourOrganizationName
+    cd buildbot-ros/scripts
+    ./aptrepo-create.bash YourOrganizationName
+
+By default, this script sets up a repository for amd64 and i386 on precise only. You can fully specify what you want though:
+
+    ./aptrepo-create.bash YourOrganizationName "amd64 i386 armel" precise oneiric hardy yeahright
 
 When everything is working, buildbot can be added as a startup, by adding to the buildbot user's crontab:
 

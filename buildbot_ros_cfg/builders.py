@@ -88,7 +88,13 @@ def ros_debian_builder(c, job_name, packages, url, distro, arch, rosdistro, vers
                 masterdest = Interpolate('binarydebs/'+final_name)
             )
         )
-        # TODO: insert master-side reprepro script when finalized
+        # Add the binarydeb using reprepro updater script on master
+        f.addStep(
+            MasterShellCommand(
+                name = package+'includedeb',
+                command = ['reprepro-include.bash', debian_pkg, Interpolate(final_name), distro, arch]
+            )
+        )
     # Trigger if needed
     if trigger_names != None:
         f.addStep( Trigger(schedulerNames = trigger_names, waitForFinish = False) )
