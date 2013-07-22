@@ -23,7 +23,6 @@ deb http://archive.ubuntu.com/ubuntu ${DISTRO}-security main restricted universe
 deb http://archive.ubuntu.com/ubuntu ${DISTRO}-updates main restricted universe multiverse |
 deb http://packages.ros.org/ros-shadow-fixed/ubuntu precise main"
 
-exit -1
 echo ""
 echo "Creating the cowbuilder instance, this can take a while..."
 echo ""
