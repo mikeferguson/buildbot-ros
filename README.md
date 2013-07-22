@@ -61,10 +61,10 @@ It is probably a good idea to change the password (mebuildslotsaros), in both th
 
     buildslave start rosbuilder1
 
-For builds to succeed, you'll need to create a cowbuilder on the local machine. You will need to run the script once for each distribution of Ubuntu that you want to build for:
+For builds to succeed, you'll need to create a cowbuilder on the local machine. You will need to run the script once for each architecture and distribution of Ubuntu that you want to build for:
 
-    cd /home/buildbot/buildbot-ros/setup
-    sudo ./cowbuilder.bash precise
+    cd /home/buildbot/buildbot-ros/scripts
+    sudo ./cowbuilder-create.bash precise amd64
 
 ##Known Issues
 ###pbuilder requires sudo privilege
