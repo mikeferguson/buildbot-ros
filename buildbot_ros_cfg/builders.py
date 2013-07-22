@@ -16,7 +16,8 @@ from buildbot.steps.trigger import Trigger
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param version Release version to build (for instance, '0.8.1-0')
-def ros_debbuild_builder(c, job_name, packages, url, distro, arch, rosdistro, version, trigger_names = None):
+## @param machines List of machines this can build on.
+def ros_debian_builder(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_names = None):
     gbp_args = ['-uc', '-us', '--git-ignore-branch', '--git-ignore-new',
                 '--git-verbose', '--git-dist='+distro, '--git-arch='+arch]
     f = BuildFactory()
@@ -95,7 +96,7 @@ def ros_debbuild_builder(c, job_name, packages, url, distro, arch, rosdistro, ve
     c['builders'].append(
         BuilderConfig(
             name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuilder',
-            slavenames = SLAVES,
+            slavenames = machines,
             factory = f
         )
     )

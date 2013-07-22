@@ -34,7 +34,7 @@ Create a user 'buildbot', log in as that user, and do the following:
     git clone git@github.com:mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
 
-At this point, you have a master, with the buildbot-ros default configuration. You'll want to edit buildbot-ros/master.cfg to add your own project settings (such as which rosdistro file to use), and then start the buildbot:
+At this point, you have a master, with the default configuration. You'll want to edit buildbot-ros/master.cfg to add your own project settings (such as which rosdistro file to use), and then start the buildbot:
 
     buildbot start buildobot-ros
 
