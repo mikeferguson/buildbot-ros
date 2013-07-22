@@ -85,6 +85,7 @@ If you are on a different machine, you'll have to create the buildbot user and v
 for the master. Once you have a buildbot user and virtualenv, do the following as 'buildbot':
 
     source buildbot-env/bin/activate
+    easy_install buildbot-slave
     buildslave create-slave rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
 
 It is probably a good idea to change the password (mebuildslotsaros), in both this command and the
