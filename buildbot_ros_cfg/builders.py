@@ -7,7 +7,7 @@ from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 
 
-## @brief Debbuild builders are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
+## @brief Debbuilds are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
 ## @param package List of packages to build.
@@ -17,7 +17,7 @@ from buildbot.steps.trigger import Trigger
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param version Release version to build (for instance, '0.8.1-0')
 ## @param machines List of machines this can build on.
-def ros_debian_builder(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_names = None):
+def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_names = None):
     gbp_args = ['-uc', '-us', '--git-ignore-branch', '--git-ignore-new',
                 '--git-verbose', '--git-dist='+distro, '--git-arch='+arch]
     f = BuildFactory()
@@ -101,10 +101,10 @@ def ros_debian_builder(c, job_name, packages, url, distro, arch, rosdistro, vers
     # Add to builders
     c['builders'].append(
         BuilderConfig(
-            name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuilder',
+            name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild',
             slavenames = machines,
             factory = f
         )
     )
     # return name of builder created
-    return job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuilder'
+    return job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild'
