@@ -32,11 +32,11 @@ Create a user 'buildbot', log in as that user, and do the following:
     source buildbot-env/bin/activate
     easy_install buildbot
     git clone git@github.com:mikeferguson/buildbot-ros.git
-    buildbot create-master buildbot-ros/master
+    buildbot create-master buildbot-ros
 
-At this point, you have a master, with the buildbot-ros default configuration. You'll want to edit buildbot-ros/master/master.cfg to add your own project settings, and then start the buildbot:
+At this point, you have a master, with the buildbot-ros default configuration. You'll want to edit buildbot-ros/master.cfg to add your own project settings (such as which rosdistro file to use), and then start the buildbot:
 
-    buildbot start master
+    buildbot start buildobot-ros
 
 To actually have debbuilders succeed, you'll need to create the APT repository for debs to be installed into, as 'buildbot':
 

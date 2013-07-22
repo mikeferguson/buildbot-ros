@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# buildbot-ros configuration file
-
-
 from buildbot.config import BuilderConfig
 from buildbot.process.factory import BuildFactory
 from buildbot.process.properties import Interpolate
@@ -9,12 +5,6 @@ from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand, SetProperty
 from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
-
-from buildbot.changes.filter import ChangeFilter
-from buildbot.changes.gitpoller import GitPoller
-from buildbot.schedulers import basic, forcesched, timed, triggerable
-
-from buildbot.buildslave import BuildSlave
 
 
 ## @brief Debbuild builders are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
