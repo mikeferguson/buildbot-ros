@@ -42,7 +42,7 @@ APT repository.
 ##Setup for Buildbot Master
 Install prerequisites:
 
-    sudo apt-get install python-virtualenv
+    sudo apt-get install python-virtualenv python-dev
 
 Create a user 'buildbot', log in as that user, and do the following:
 
