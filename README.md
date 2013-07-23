@@ -79,7 +79,7 @@ crontab:
 We need a few things installed (remember, buildbot is not in the sudoers, so you should do this
 under your own account):
 
-    sudo apt-get install reprepro cowbuilder debootstrap devscripts git git-buildpackage
+    sudo apt-get install reprepro cowbuilder debootstrap devscripts git git-buildpackage debhelper
 
 If you are on a different machine, you'll have to create the buildbot user and virtualenv as done
 for the master. Once you have a buildbot user and virtualenv, do the following as 'buildbot':
