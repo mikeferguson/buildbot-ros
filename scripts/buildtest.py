@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+
+# This file is the actual buildtest that is run
+
+from __future__ import print_function
+import sys, os, subprocess, shutil
+
+## @brief Run the build and test for a repository of catkin packages
+## @param workspace Directory to do work in (typically bind-mounted,
+##        code needs to be already checked out to workspace/src/*)
+## @param rosdistro Name of the distro to build for, for instance, 'groovy'
+def run_build_and_test(workspace, rosdistro):
+
+    # need to install dependencies, hack python path, import stuff
+    call(['apt-get', 'update'])
+    apt_get_install(['python-rosdistro', 'python-catkin-pkg'])
+    if not os.path.abspath("/usr/lib/pymodules/python2.7") in sys.path:
+        sys.path.append("/usr/lib/pymodules/python2.7")
+    from rosdistro import get_index, get_index_url, get_source_file
+    from catkin_pkg import packages
+
+    # Find packages to build
+    print('Searching for something yummy to build...')
+    pkgs = packages.find_packages(workspace+'/src')
+    building = [p.name for p in pkgs.values()]
+    if len(pkgs) > 0:
+        print('  Found packages: %s' % ', '.join(building))
+    else:
+        raise BuildException('No packages to build or test.')
+
+    # Get build + test dependencies
+    print('Examining build dependencies.')
+    build_depends = []
+    for pkg in pkgs.values():
+        for d in pkg.build_depends + pkg.buildtool_depends:
+            if not d.name in build_depends and not d.name in building:
+                build_depends.append(d.name)
+    print('Installing: %s' % ', '.join(build_depends))
+    rosdep = RosDepResolver(rosdistro)
+    apt_get_install(rosdep.to_aptlist(build_depends))
+
+    # Get environment
+    ros_env = get_ros_env('/opt/ros/%s/setup.bash' % rosdistro)
+
+    os.makedirs(workspace+'/build')
+    if os.path.exists(workspace+'/test'):
+        shutil.rmtree(workspace+'/test')
+    os.makedirs(workspace+'/test')
+    os.chdir(workspace+'/build')
+
+    print('catkin_init_workspace')
+    call(['catkin_init_workspace', '../src'], ros_env)
+    call(['cmake', '../src', '-DCATKIN_TEST_RESULTS_DIR=../test'], ros_env)
+    
+    print('make')
+    call(['make'], ros_env)
+    print('make tests')
+    call(['make', 'tests'], ros_env)
+
+    # now install the test + run depends
+    print('Examining test/run dependencies.')
+    test_depends = []
+    for pkg in pkgs.values():
+        for d in pkg.test_depends + pkg.run_depends:
+            if not d.name in test_depends and not d.name in building:
+                test_depends.append(d.name)
+    print('Installing: %s' % ', '.join(test_depends))
+    apt_get_install(rosdep.to_aptlist(test_depends))
+
+    print('make run_tests')
+    call(['make', 'run_tests'], ros_env)
+
+## @brief Call a command
+## @param command Should be a list
+def call(command, envir=None, verbose=True, return_output=False):
+    print('Executing command "%s"' % ' '.join(command))
+    helper = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, env=envir)
+    if return_output:
+        res = ''
+    while True:
+        output = helper.stdout.readline().decode('utf8', 'replace')
+        if helper.returncode is not None or not output:
+            break
+        if verbose:
+            sys.stdout.write(output)
+        if return_output:
+            res += output
+
+    helper.wait()
+    if helper.returncode != 0:
+        msg = 'Failed to execute command "%s" with return code %d' % (command, helper.returncode)
+        print('/!\  %s' % msg)
+        raise BuildException(msg)
+    if return_output:
+        return res
+
+## @brief imported from jenkins-scripts/common.py
+def get_ros_env(setup_file):
+    res = os.environ
+    print('Retrieve the ROS build environment by sourcing %s' % setup_file)
+    command = ['bash', '-c', 'source %s && env' % setup_file]
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE)
+    for line in proc.stdout:
+        (key, _, value) = line.partition("=")
+        res[key] = value.split('\n')[0]
+    proc.communicate()
+    if proc.returncode != 0:
+        msg = 'Failed to source %s' % setup_file
+        print('/!\  %s' % msg)
+        raise BuildException(msg)
+    return res
+
+## @brief modified version of function found in jenkins-scripts/common.py
+def apt_get_install(pkgs, sudo=False):
+    cmd = ['apt-get', 'install', '--yes']
+    if sudo:
+        cmd = ['sudo', ] + cmd
+
+    if len(pkgs) > 0:
+        print('calling ' + ' '.join(cmd+pkgs))
+        call(cmd + pkgs)
+    else:
+        print('Not installing anything from apt right now.')
+
+## @brief from jenkins-scripts/rosdep.py
+class RosDepResolver:
+    def __init__(self, rosdistro):
+        self.r2a = {}
+        self.env = os.environ
+        self.env['ROS_DISTRO'] = rosdistro
+
+        # Initialize rosdep database
+        print('Ininitalize rosdep database')
+        call(['apt-get', 'install', '--yes', 'lsb-release', 'python-rosdep'])
+        try:
+            call(['rosdep', 'init'], self.env)
+        except:
+            print('Rosdep is already initialized')
+        call(['rosdep', 'update'], self.env)
+
+        print('Building dictionarys from a rosdep db')
+        raw_db = call(['rosdep', 'db'], self.env, verbose=False, return_output=True).split('\n')
+
+        for entry in raw_db:
+            split_entry = entry.split(' -> ')
+            if len(split_entry) < 2:
+                continue
+            ros_entry = split_entry[0]
+            apt_entries = split_entry[1].split(' ')
+            self.r2a[ros_entry] = apt_entries
+
+    def to_apt(self, ros_entry):
+        if ros_entry not in self.r2a:
+            print('Could not find %s in keys.' % ros_entry)
+        return self.r2a[ros_entry]
+
+    def to_aptlist(self, ros_entries):
+        res = []
+        for r in ros_entries:
+            for a in self.to_apt(r):
+                if not a in res:
+                    res.append(a)
+        return res
+
+class BuildException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+if __name__=="__main__":
+    if len(sys.argv) < 3:
+        print('')
+        print('Usage: git_buildtest.py <workspace> <rosdistro>')
+        print('')
+        exit(-1)
+    run_build_and_test(sys.argv[1], sys.argv[2])
