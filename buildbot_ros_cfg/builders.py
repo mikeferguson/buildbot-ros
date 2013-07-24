@@ -108,3 +108,70 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     )
     # return name of builder created
     return job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild'
+
+
+## @brief Buildtest jobs are used for Continuous Integration testing of the source repo.
+## @param c The Buildmasterconfig
+## @param job_name Name for this job (typically the metapackage name)
+## @param package List of packages to build.
+## @param url URL of the SOURCE repository.
+## @param branch Branch to checkout.
+## @param rosdistro ROS distro (for instance, 'groovy')
+## @param machines List of machines this can build on.
+def ros_buildtest(c, job_name, packages, url, branch, rosdistro, machines):
+
+    # Change source is simply a GitPoller
+    # TODO: make this configurable for svn/etc
+    c['change_source'].append(
+        GitPoller(
+            repourl = url,
+            branch = branch,
+            project = job_name+'_'+rosdistro+'_buildtest'
+        )
+    )
+    c['schedulers'].append(
+        basic.SingleBranchScheduler(
+            name = job_name+'_'+rosdistro+'_buildtest',
+            builderNames = [job_name+'_'+rosdistro+'_buildtest',],
+            change_filter = ChangeFilter(project = job_name+'_'+rosdistro+'_buildtest')
+        )
+    )
+
+    # Directory which will be bind-mounted
+    binddir = '/tmp/'+job_name+'_buildtest'
+
+    f = BuildFactory()
+    # Remove any old crud in /tmp folder
+    f.addStep( ShellCommand(command = ['rm', '-rf', binddir]) )
+    # Check out repository (to /tmp)
+    f.addStep(
+        Git(
+            repourl = url,
+            branch = branch,
+            alwaysUseLatest = True,
+            mode = 'full',
+            workdir = binddir+'/src/'
+        )
+    )
+    # Make and run tests in a pbuilder
+    f.addStep(
+        ShellCommand(
+            haltOnFailure = True,
+            name = job_name+'-buildtest',
+            command = ['sudo', 'cowbuilder', '--execute', '/home/buildbot/buildbot-ros/scripts/buildtest.py',
+                       '--distribution', DEFAULT_DISTRO, '--architecture', DEFAULT_ARCH,
+                       '--bindmounts', binddir,
+                       '--basepath', '/var/cache/pbuilder/base-'+DEFAULT_DISTRO+'-'+DEFAULT_ARCH+'.cow',
+                       '--', binddir, rosdistro]
+        )
+    )
+    # TODO: run a step that checks output of tests for failures?
+    c['builders'].append(
+        BuilderConfig(
+            name = job_name+'_'+rosdistro+'_buildtest',
+            slavenames = machines,
+            factory = f
+        )
+    )
+    # return the name of the job created
+    return job_name+'_'+rosdistro+'_buildtest'
