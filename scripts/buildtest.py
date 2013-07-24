@@ -178,7 +178,7 @@ def cleanup():
 if __name__=="__main__":
     if len(sys.argv) < 3:
         print('')
-        print('Usage: git_buildtest.py <workspace> <rosdistro>')
+        print('Usage: buildtest.py <workspace> <rosdistro>')
         print('')
         exit(-1)
     workspace = sys.argv[1] # for cleanup
