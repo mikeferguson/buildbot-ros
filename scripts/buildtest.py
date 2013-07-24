@@ -69,6 +69,7 @@ def run_build_and_test(workspace, rosdistro):
 
     print('make run_tests')
     call(['make', 'run_tests'], ros_env)
+    cleanup()
 
 ## @brief Call a command
 ## @param command Should be a list
@@ -164,7 +165,15 @@ class RosDepResolver:
 
 class BuildException(Exception):
     def __init__(self, msg):
+        cleanup()
         self.msg = msg
+
+## @brief Do some cleanup
+def cleanup():
+    if os.path.exists(workspace+'/build'):
+        shutil.rmtree(workspace+'/build')
+    if os.path.exists(workspace+'/test'):
+        shutil.rmtree(workspace+'/test')
 
 if __name__=="__main__":
     if len(sys.argv) < 3:
@@ -172,4 +181,5 @@ if __name__=="__main__":
         print('Usage: git_buildtest.py <workspace> <rosdistro>')
         print('')
         exit(-1)
+    workspace = sys.argv[1] # for cleanup
     run_build_and_test(sys.argv[1], sys.argv[2])
