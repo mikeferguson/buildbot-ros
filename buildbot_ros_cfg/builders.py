@@ -7,6 +7,11 @@ from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 
 
+# TODO: should probably read these from environment
+DEFAULT_DISTRO = 'precise'
+DEFAULT_ARCH = 'amd64'
+
+
 ## @brief Debbuilds are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
