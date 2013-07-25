@@ -27,16 +27,16 @@ APT repository.
 ###Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a
    Python script, which I found to be more approachable than scripting Jenkins.
- * Currently, we build source and binary debians for an entire repository, which can consist of
-   several packages and a metapackage, as one job per ROS/Ubuntu distribution combination.
- * The order of dependencies between packages (and between repositories) must be specified in the
-   build configuration. In the future this should be read from a rosdistro file and automatically
-   generated, as done on the ROS buildfarm.
+ * Source and binary debians for an entire repository, which can consist of several packages and a
+   metapackage, are built as one job per ROS/Ubuntu distribution combination.
 
 ###Known Limitations:
  * There is not yet a rosdistro tie-in to read the state of the rosdistro, determine updates, and
    trigger updated jobs. This is planned, but not implemented. In the meantime, debian builds are
    simply run nightly (and of course, are easily triggerable).
+ * The order of dependencies between packages (and between repositories) must be specified in the
+   build configuration. In the future this should be read from a rosdistro file and automatically
+   generated, as done on the ROS buildfarm.
  * Buildtest jobs only work on git repositories.
 
 ##Setup for Buildbot Master
