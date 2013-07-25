@@ -5,24 +5,40 @@ for developers wishing to build their own packages, run continuous integration t
 docs.
 
 ##Design Overview
-Buildbot uses a single master, and possibly multiple slaves. At present, the setup described below
-will create a single slave on the same machine as the master. All of the setup is done under a
-'buildbot' user account, and we use virtualenv so that your machine setup is not affected.
+Buildbot uses a single master, and possibly multiple machines building. At present, the setup
+described below will do all builds on the same machine as the master. All of the setup is done under
+a 'buildbot' user account, and we use virtualenv and cowbuilder so that your machine setup is not
+affected.
 
-There are several job types available:
+There are several 'builder' types available:
  * Debbuild - turns a gbp repository into a set of source and binary debs for a specific ROS distro
-   and Ubuntu release. In the future, this should be triggered by rosdistro updates, currently it
-   is a nightly job.
- * Buildtest - checks out a branch of a repository, builds, and runs tests. Triggered by a commit
-   to the watched branch of the repository.
- * Docbuild - are built and uploaded to the master. Currently triggered nightly. In the future, a
-   more elegant way of locating files correctly should be used.
+   and Ubuntu release. This is currently run in a nightly build, with a pre-determined, hard-coded
+   dependency order. In the future, this should be triggered by rosdistro updates and use rosdistro
+   and catkin to determine the build order.
+ * Buildtest - this is a standard continuous integration testing setup. Checks out a branch of a
+   repository, builds, and runs tests using catkin. Triggered by a commit to the watched branch
+   of the repository. In the future, this could also be triggered by a post commit hook giving even
+   faster response time to let you know that you broke the build or tests (buildbot already has nice
+   GitHub post-commit hooks available).
+ * Docbuild - are built and uploaded to the master. Currently triggered nightly and generating only
+   the doxygen/epydoc/sphinx documentation (part of the docs you find on ros.org). Uses rosdoc_lite.
+   Presently, I do a soft link from my Apache server install to the /home/buildbot/buildbot-ros/docs
+   directory, but in the future, a more elegant solution to this should be implemented.
+
+There are also several builders that are not directly related to ROS, but generally useful:
+ * Launchpad - sometimes you need a regular old debian that just happens to not be available. This
+   builder is called 'launchpad_debbuild' because I mainly use it to build sourcedebs from Launchpad
+   into binaries, however, it can be used with any sourcedeb source.
+
+Clearly, this is still a work in progress, but setup is fairly quick for a small set of projects.
+By adding rosdistro parsing and automatic job configuration, this framework could also do much
+projects pretty well.
 
 ##Comparison with ROS buildfarm
 Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_ is still used to
 create gbp releases. _git-buildpackage_ is used to generate debians from the _Bloom_ releases,
 using _cowbuilder_ to build in a chroot rather than _pbuilder_. _reprepro_ is used to update the
-APT repository.
+APT repository. Docs are generated using _rosdoc_lite_
 
 ###Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a
