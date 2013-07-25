@@ -3,19 +3,25 @@ from buildbot.process.factory import BuildFactory
 from buildbot.process.properties import Interpolate
 from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand, SetProperty
-from buildbot.steps.transfer import FileUpload, FileDownload
+from buildbot.steps.transfer import FileUpload, FileDownload, DirectoryUpload
 from buildbot.steps.trigger import Trigger
+from buildbot.steps.master import MasterShellCommand
+
+from buildbot.changes.filter import ChangeFilter
+from buildbot.changes.gitpoller import GitPoller
+from buildbot.schedulers import basic
 
 
 # TODO: should probably read these from environment
 DEFAULT_DISTRO = 'precise'
 DEFAULT_ARCH = 'amd64'
+INSTALL_LOC = '/home/buildbot/buildbot-ros'
 
 
 ## @brief Debbuilds are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
-## @param package List of packages to build.
+## @param packages List of packages to build.
 ## @param url URL of the BLOOM repository.
 ## @param distro Ubuntu distro to build for (for instance, 'precise')
 ## @param arch Architecture to build for (for instance, 'amd64')
@@ -118,7 +124,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
 ## @brief Buildtest jobs are used for Continuous Integration testing of the source repo.
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
-## @param package List of packages to build.
+## @param packages List of packages to build.
 ## @param url URL of the SOURCE repository.
 ## @param branch Branch to checkout.
 ## @param rosdistro ROS distro (for instance, 'groovy')
@@ -163,14 +169,23 @@ def ros_buildtest(c, job_name, packages, url, branch, rosdistro, machines):
         ShellCommand(
             haltOnFailure = True,
             name = job_name+'-buildtest',
-            command = ['sudo', 'cowbuilder', '--execute', '/home/buildbot/buildbot-ros/scripts/buildtest.py',
+            command = ['sudo', 'cowbuilder', '--execute', INSTALL_LOC+'/scripts/buildtest.py',
                        '--distribution', DEFAULT_DISTRO, '--architecture', DEFAULT_ARCH,
                        '--bindmounts', binddir,
                        '--basepath', '/var/cache/pbuilder/base-'+DEFAULT_DISTRO+'-'+DEFAULT_ARCH+'.cow',
-                       '--', binddir, rosdistro]
+                       '--', binddir, rosdistro] # TODO: this script should be downloaded from master
         )
     )
-    # TODO: run a step that checks output of tests for failures?
+    # Check that tests succeeded
+    f.addStep(
+        ShellCommand(
+            warnOnFailure = True,
+            flunkOnFailure = False,
+            name = job_name+'-tests',
+            command = ['buildtest_check.py', 'tests',
+                       Interpolate(INSTALL_LOC+'/'+job_name+'_'+rosdistro+'_buildtest/%(prop:buildnumber)s-log-'+job_name+'-buildtest-stdio')]
+        )
+    )
     c['builders'].append(
         BuilderConfig(
             name = job_name+'_'+rosdistro+'_buildtest',
@@ -180,3 +195,62 @@ def ros_buildtest(c, job_name, packages, url, branch, rosdistro, machines):
     )
     # return the name of the job created
     return job_name+'_'+rosdistro+'_buildtest'
+
+
+## @brief Docbuild jobs build the source documentation. This isn't the whold documentation
+##        that is on the wiki, like message docs, just the source documentation part.
+## @param c The Buildmasterconfig
+## @param job_name Name for this job (typically the metapackage name)
+## @param packages List of packages to build.
+## @param url URL of the SOURCE repository.
+## @param branch Branch to checkout.
+## @param rosdistro ROS distro (for instance, 'groovy')
+## @param machines List of machines this can build on.
+def ros_docbuild(c, job_name, packages, url, branch, rosdistro, machines):
+
+    # Directory which will be bind-mounted
+    binddir = '/tmp/'+job_name+'_docbuild'
+
+    f = BuildFactory()
+    # Remove any old crud in /tmp folder
+    f.addStep( ShellCommand(command = ['rm', '-rf', binddir]) )
+    # Check out repository (to /tmp)
+    f.addStep(
+        Git(
+            repourl = url,
+            branch = branch,
+            alwaysUseLatest = True,
+            mode = 'full',
+            workdir = binddir+'/src/'
+        )
+    )
+    # Build docs in a pbuilder
+    for package in packages:
+        f.addStep(
+            ShellCommand(
+                haltOnFailure = True,
+                name = package+'-docbuild',
+                command = ['sudo', 'cowbuilder', '--execute', INSTALL_LOC+'/scripts/docbuild.py',
+                           '--distribution', DEFAULT_DISTRO, '--architecture', DEFAULT_ARCH,
+                           '--bindmounts', binddir,
+                           '--basepath', '/var/cache/pbuilder/base-'+DEFAULT_DISTRO+'-'+DEFAULT_ARCH+'.cow',
+                           '--', binddir, rosdistro, package] # TODO: this script should be downloaded from master
+            )
+        )
+        # Upload docs to master
+        f.addStep(
+            DirectoryUpload(
+                name = package+'-upload',
+                slavesrc = binddir+'/doc/html',
+                masterdest = 'docs/'+package
+            )
+        )
+    c['builders'].append(
+        BuilderConfig(
+            name = job_name+'_'+rosdistro+'_docbuild',
+            slavenames = machines,
+            factory = f
+        )
+    )
+    # return the name of the job created
+    return job_name+'_'+rosdistro+'_docbuild'
