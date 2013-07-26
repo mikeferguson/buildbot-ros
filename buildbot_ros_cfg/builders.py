@@ -88,7 +88,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-buildbinary',
                 command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
                            Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
-                env = {'DIST': distro}
+                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': '--hookdir '+INSTALL_LOC+'/hooks'}
             )
         )
         # Upload binarydeb to master
