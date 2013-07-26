@@ -87,6 +87,19 @@ specify what you want though:
 
     ./aptrepo-create.bash YourOrganizationName "amd64 i386 armel" precise oneiric hardy yeahright
 
+If you want to sign your repository, you need to generate a GPG key for reprepro to use:
+
+    gpg --gen-key
+
+Use _gpg --list-keys_ to find the key identifier (for instance AAAABBBB) and add a line in the
+/var/www/building/ubuntu/conf/distributions file with:
+
+    SignWith: AAAABBBB
+
+You'll likely want to export the public key:
+
+    gpg --output /var/www/public.key --armor --export AAAABBBB
+
 When everything is working, buildbot can be added as a startup, by adding to the buildbot user's
 crontab:
 
@@ -118,7 +131,7 @@ run the script once for each architecture and distribution of Ubuntu that you wa
     cd /home/buildbot/buildbot-ros/scripts
     sudo ./cowbuilder-create.bash precise amd64
 
-##Known Issues
+##Known Issues, Hacks, Tricks and Workarounds
 ###pbuilder requires sudo privilege
 The best way around this is to allow the 'buildbot' user to execute git-buildpackage and
 pbuilder/cowbuilder without a password, by adding the following to your /etc/sudoers file
@@ -136,3 +149,13 @@ at line 10. change 'exceptions' to 'exc':
 
     from sqlalchemy import exc as sa_exceptions
 
+###I need to move my key (also known as 'my server has all the entropy of a dead cow!')
+On the machine with the key
+
+    gpg --output key.gpg --armor --export AAAABBBB
+    gpg --output secret.gpg --armor --export-secret-key AAAABBBB
+
+On the other machine:
+
+    gpg --import key.gpg
+    gpg --allow-secret-key-import --import secret.gpg
