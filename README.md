@@ -69,9 +69,10 @@ Create a user 'buildbot', log in as that user, and do the following:
     git clone git@github.com:mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
 
-At this point, you have a master, with the default configuration. You'll want to edit
-buildbot-ros/master.cfg to add your own project settings (such as which rosdistro file to use),
-and then start the buildbot:
+At this point, you have a master, with the default configuration. You will almost certainly want to
+edit buildbot-ros/buildbot.tac and set the line 'umask=None' to 'umask=0022' so that uploaded debs
+can be found by your webserver. You'll also want to edit buildbot-ros/master.cfg to add your own
+project settings (such as which rosdistro file to use), and then start the buildbot:
 
     buildbot start buildobot-ros
 
@@ -104,6 +105,7 @@ for the master. Once you have a buildbot user and virtualenv, do the following a
     easy_install buildbot-slave
     buildslave create-slave rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
 
+As with the master, change umask to be 0022 in the .tac file.
 It is probably a good idea to change the password (mebuildslotsaros), in both this command and the
 master/master.cfg. You can also define additional slaves in the master/master.cfg file, currently
 we define rosbuilder1 and 2. To start the slave:
