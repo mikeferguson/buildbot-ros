@@ -5,6 +5,10 @@
 from __future__ import print_function
 import sys, os, subprocess, shutil
 
+GTESTPASS = '[       OK ]'
+GTESTFAIL = '[  FAILED  ]'
+PNOSEFAIL = 'FAIL: '
+
 ## @brief Run the build and test for a repository of catkin packages
 ## @param workspace Directory to do work in (typically bind-mounted,
 ##        code needs to be already checked out to workspace/src/*)
@@ -67,9 +71,59 @@ def run_build_and_test(workspace, rosdistro):
     print('Installing: %s' % ', '.join(test_depends))
     apt_get_install(rosdep.to_aptlist(test_depends))
 
+    # Run the tests
     print('make run_tests')
-    call(['make', 'run_tests'], ros_env)
+    test_results = call(['make', 'run_tests'], ros_env, return_output = True)
+
+    # Output test results to a file
+    f = open(workspace + '/testresults', 'w')
+
+    # Metrics from tests
+    gtest_pass = list()
+    gtest_fail = list()
+    pnose_fail = list()
+    pnose_total = 0 # can only count these?
+
+    for line in test_results.split('\n'):
+        # Is this a gtest pass?
+        if line.find(GTESTPASS) > -1:
+            name = line[line.find(GTESTPASS)+len(GTESTPASS)+1:].split(' ')[0]
+            gtest_pass.append(name)
+        # How about a gtest fail?
+        if line.find(GTESTFAIL) > -1:
+            name = line[line.find(GTESTFAIL)+len(GTESTPASS)+1:].split(' ')[0]
+            gtest_fail.append(name)
+        # pnose fail?
+        if line.find(PNOSEFAIL) > -1:
+            name = line.split(' ')[2].rstrip()
+            pnose_fail.append(name)
+        # is this our total for python?
+        if line.find('Ran ') > -1:
+            pnose_total += int(line.split(' ')[1])
+
+    # determine if we failed
+    passed = len(gtest_pass) + pnose_total - len(pnose_fail)
+    failed = len(gtest_fail) + len(pnose_fail)
+    if failed > 0:
+        f.write('*'*70 + '\n')
+        f.write('Failed '+str(failed)+' of '+str(passed+failed)+' tests.\n')
+        for test in gtest_fail + pnose_fail:
+            f.write('  failed: '+test+'\n')
+        f.write('See details below\n')
+        f.write('*'*70 + '\n')
+    else:
+        f.write('Passed '+str(passed)+' tests.\n')
+
+    f.write('\n')
+    f.write(test_results)
+    f.close()
+
+    # Hack so the buildbot can delete this later
+    call(['chmod', '777', workspace+'/testresults'])
     cleanup()
+
+    if failed > 0:
+        exit(-1)
 
 ## @brief Call a command
 ## @param command Should be a list
@@ -178,7 +232,7 @@ def cleanup():
 if __name__=="__main__":
     if len(sys.argv) < 3:
         print('')
-        print('Usage: buildtest.py <workspace> <rosdistro>')
+        print('Usage: testbuild.py <workspace> <rosdistro>')
         print('')
         exit(-1)
     workspace = sys.argv[1] # for cleanup
