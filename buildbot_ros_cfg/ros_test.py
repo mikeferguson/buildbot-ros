@@ -15,14 +15,13 @@ from helpers import success
 ## @brief Testbuild jobs are used for Continuous Integration testing of the source repo.
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
-## @param packages List of packages to build.
 ## @param url URL of the SOURCE repository.
 ## @param branch Branch to checkout.
 ## @param distro Ubuntu distro to build for (for instance, 'precise')
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param machines List of machines this can build on.
-def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, machines):
+def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
 
     # Change source is simply a GitPoller
     # TODO: make this configurable for svn/etc
