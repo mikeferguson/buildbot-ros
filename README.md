@@ -15,7 +15,7 @@ There are several 'builder' types available:
    and Ubuntu release. This is currently run in a nightly build, with a pre-determined, hard-coded
    dependency order. In the future, this should be triggered by rosdistro updates and use rosdistro
    and catkin to determine the build order.
- * Buildtest - this is a standard continuous integration testing setup. Checks out a branch of a
+ * Testbuild - this is a standard continuous integration testing setup. Checks out a branch of a
    repository, builds, and runs tests using catkin. Triggered by a commit to the watched branch
    of the repository. In the future, this could also be triggered by a post commit hook giving even
    faster response time to let you know that you broke the build or tests (buildbot already has nice
@@ -53,7 +53,7 @@ APT repository. Docs are generated using _rosdoc_lite_
  * The order of dependencies between packages (and between repositories) must be specified in the
    build configuration. In the future this should be read from a rosdistro file and automatically
    generated, as done on the ROS buildfarm.
- * Buildtest jobs only work on git repositories.
+ * Testbuild jobs only work on git repositories.
 
 ##Setup for Buildbot Master
 Install prerequisites:
