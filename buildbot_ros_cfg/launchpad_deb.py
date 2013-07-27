@@ -6,6 +6,8 @@ from buildbot.steps.transfer import FileUpload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
 
+from helpers import success
+
 ## @brief Build a deb, from a source package found on launchpad
 ## @param c The Buildmasterconfig
 ## @param package Name of the package (for instance, gflags, should match the dsc file)
@@ -34,7 +36,8 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
                        '--build', package+'_'+version+'.dsc',
                        '--distribution', distro, '--architecture', arch,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
-                       '--buildresult', Interpolate('%(prop:workdir)s')]
+                       '--buildresult', Interpolate('%(prop:workdir)s')],
+            descriptionDone = ['built binary debs', ]
         )
     )
     # Upload debs
@@ -45,14 +48,16 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
                 FileUpload(
                     name = deb_name+'-upload',
                     slavesrc = Interpolate('%(prop:workdir)s/'+debian_pkg),
-                    masterdest = Interpolate('binarydebs/'+debian_pkg)
+                    masterdest = Interpolate('binarydebs/'+debian_pkg),
+                    hideStepIf = success
                 )
             )
             # Add the binarydeb using reprepro updater script on master
             f.addStep(
                 MasterShellCommand(
                     name = deb_name+'include',
-                    command = ['reprepro-include.bash', deb_name, Interpolate(debian_pkg), distro, deb_arch]
+                    command = ['reprepro-include.bash', deb_name, Interpolate(debian_pkg), distro, deb_arch],
+                    descriptionDone = ['updated in apt', debian_pkg]
                 )
             )
     # Trigger if needed

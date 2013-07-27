@@ -7,6 +7,8 @@ from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
 
+from helpers import success
+
 # TODO: should probably read these from environment
 INSTALL_LOC = '/home/buildbot/buildbot-ros'
 
@@ -44,7 +46,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-checkout',
-                command = ['git', 'checkout', Interpolate(branch_name), '--force']
+                command = ['git', 'checkout', Interpolate(branch_name), '--force'],
+                hideStepIf = success
             )
         )
         # Build the source deb
@@ -52,7 +55,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildsource',
-                command = ['git-buildpackage', '-S'] + gbp_args
+                command = ['git-buildpackage', '-S'] + gbp_args,
+                descriptionDone = ['sourcedeb', package]
             )
         )
         # Upload sourcedeb to master (currently we are not actually syncing these with a public repo)
@@ -60,17 +64,25 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             FileUpload(
                 name = package+'-uploadsource',
                 slavesrc = Interpolate('%(prop:workdir)s/'+deb_name+'.dsc'),
-                masterdest = Interpolate('sourcedebs/'+deb_name+'.dsc')
+                masterdest = Interpolate('sourcedebs/'+deb_name+'.dsc'),
+                hideStepIf = success
             )
         )
         # Stamp the changelog, in a similar fashion to the ROS buildfarm
-        f.addStep( SetProperty(command="date +%Y%m%d-%H%M-%z", property="datestamp", name = package+'-getstamp') )
+        f.addStep(
+            SetProperty(
+                command="date +%Y%m%d-%H%M-%z", property="datestamp",
+                name = package+'-getstamp',
+                hideStepIf = success
+            )
+        )
         f.addStep(
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-stampdeb',
                 command = ['git-dch', '-a', '--ignore-branch', '--verbose',
-                           '-N', Interpolate('%(prop:release_version:~'+version+')s-%(prop:datestamp)s'+distro)]
+                           '-N', Interpolate('%(prop:release_version:~'+version+')s-%(prop:datestamp)s'+distro)],
+                descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version:~'+version+')s'), Interpolate('%(prop:datestamp)s')]
             )
         )
         # build the binary from the git working copy
@@ -80,7 +92,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-buildbinary',
                 command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
                            Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
-                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': '--hookdir '+INSTALL_LOC+'/hooks'}
+                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': '--hookdir '+INSTALL_LOC+'/hooks'},
+                descriptionDone = ['binarydeb', package]
             )
         )
         # Upload binarydeb to master
@@ -88,14 +101,16 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             FileUpload(
                 name = package+'-uploadbinary',
                 slavesrc = Interpolate('%(prop:workdir)s/'+final_name),
-                masterdest = Interpolate('binarydebs/'+final_name)
+                masterdest = Interpolate('binarydebs/'+final_name),
+                hideStepIf = success
             )
         )
         # Add the binarydeb using reprepro updater script on master
         f.addStep(
             MasterShellCommand(
                 name = package+'includedeb',
-                command = ['reprepro-include.bash', debian_pkg, Interpolate(final_name), distro, arch]
+                command = ['reprepro-include.bash', debian_pkg, Interpolate(final_name), distro, arch],
+                descriptionDone = ['updated in apt', package]
             )
         )
     # Trigger if needed

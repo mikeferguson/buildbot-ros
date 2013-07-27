@@ -9,6 +9,7 @@ from buildbot.changes.filter import ChangeFilter
 from buildbot.changes.gitpoller import GitPoller
 from buildbot.schedulers import basic
 
+from helpers import success
 
 ## @brief Testbuild jobs are used for Continuous Integration testing of the source repo.
 ## @param c The Buildmasterconfig
@@ -44,7 +45,12 @@ def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, m
 
     f = BuildFactory()
     # Remove any old crud in /tmp folder
-    f.addStep( ShellCommand(command = ['rm', '-rf', binddir]) )
+    f.addStep(
+        ShellCommand(
+            command = ['rm', '-rf', binddir],
+            hideStepIf = success
+        )
+    )
     # Check out repository (to /tmp)
     f.addStep(
         Git(
@@ -61,6 +67,7 @@ def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, m
             name = job_name+'-grab-script',
             mastersrc = 'scripts/testbuild.py',
             slavedest = Interpolate('%(prop:workdir)s/testbuild.py'),
+            hideStepIf = success
         )
     )
     # Make and run tests in a pbuilder
@@ -72,7 +79,8 @@ def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, m
                        '--bindmounts', binddir,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
                        '--', binddir, rosdistro],
-            logfiles = {'tests' : binddir+'/testresults' }
+            logfiles = {'tests' : binddir+'/testresults' },
+            descriptionDone = ['make and test', job_name]
         )
     )
     c['builders'].append(
