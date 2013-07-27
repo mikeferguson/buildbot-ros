@@ -9,6 +9,7 @@ from buildbot.changes.filter import ChangeFilter
 from buildbot.changes.gitpoller import GitPoller
 from buildbot.schedulers import basic
 
+from buildbot.status import results
 from helpers import success
 
 ## @brief Testbuild jobs are used for Continuous Integration testing of the source repo.
@@ -72,7 +73,7 @@ def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, m
     )
     # Make and run tests in a pbuilder
     f.addStep(
-        ShellCommand(
+        TestBuild(
             name = job_name+'-build',
             command = ['sudo', 'cowbuilder', '--execute', Interpolate('%(prop:workdir)s/testbuild.py'),
                        '--distribution', distro, '--architecture', arch,
@@ -92,3 +93,20 @@ def ros_testbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, m
     )
     # return the name of the job created
     return job_name+'_'+rosdistro+'_testbuild'
+
+## @brief Shell command with overwritten evaluateCommand so that tests can be Warn
+class TestBuild(ShellCommand):
+    warnOnWarnings = True
+
+    def evaluateCommand(self, cmd):
+        if cmd.didFail():
+            # build failed
+            return results.FAILURE
+
+        l = self.getLog('tests').readlines()
+        if len(l) >= 1:
+            if l[0].find('Passed') > -1:
+                return results.SUCCESS
+            else:
+                # some tests failed
+                return results.WARNINGS

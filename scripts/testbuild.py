@@ -122,9 +122,6 @@ def run_build_and_test(workspace, rosdistro):
     call(['chmod', '777', workspace+'/testresults'])
     cleanup()
 
-    if failed > 0:
-        exit(-1)
-
 ## @brief Call a command
 ## @param command Should be a list
 def call(command, envir=None, verbose=True, return_output=False):
