@@ -9,9 +9,6 @@ from buildbot.steps.master import MasterShellCommand
 
 from helpers import success
 
-# TODO: should probably read these from environment
-INSTALL_LOC = '/home/buildbot/buildbot-ros'
-
 ## @brief Debbuilds are used for building sourcedebs & binaries out of gbps and uploading to an APT repository
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
@@ -85,6 +82,16 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version:~'+version+')s'), Interpolate('%(prop:datestamp)s')]
             )
         )
+        # download hooks
+        f.addStep(
+            FileDownload(
+                name = package+'-grab-hooks',
+                mastersrc = 'hooks/D05deps',
+                slavedest = Interpolate('%(prop:workdir)s/hooks/D05deps'),
+                hideStepIf = success,
+                mode = 0777 # make this executable for the cowbuilder
+            )
+        )
         # build the binary from the git working copy
         f.addStep(
             ShellCommand(
@@ -92,7 +99,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-buildbinary',
                 command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
                            Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
-                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': '--hookdir '+INSTALL_LOC+'/hooks'},
+                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': Interpolate('--hookdir %(prop:workdir)s/hooks')},
                 descriptionDone = ['binarydeb', package]
             )
         )
