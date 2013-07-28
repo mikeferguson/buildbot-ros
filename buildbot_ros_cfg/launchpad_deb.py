@@ -2,7 +2,7 @@ from buildbot.config import BuilderConfig
 from buildbot.process.factory import BuildFactory
 from buildbot.process.properties import Interpolate
 from buildbot.steps.shell import ShellCommand
-from buildbot.steps.transfer import FileUpload
+from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
 
@@ -27,6 +27,16 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
             command = ['dget', '--allow-unauthenticated', url]
         )
     )
+    # download hooks
+    f.addStep(
+        FileDownload(
+            name = package+'-grab-hooks',
+            mastersrc = 'hooks/D05deps',
+            slavedest = Interpolate('%(prop:workdir)s/hooks/D05deps'),
+            hideStepIf = success,
+            mode = 0777 # make this executable for the cowbuilder
+        )
+    )
     # Build it
     f.addStep(
         ShellCommand(
@@ -36,7 +46,8 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
                        '--build', package+'_'+version+'.dsc',
                        '--distribution', distro, '--architecture', arch,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
-                       '--buildresult', Interpolate('%(prop:workdir)s')],
+                       '--buildresult', Interpolate('%(prop:workdir)s'),
+                       '--hookdir', Interpolate('%(prop:workdir)s/hooks')],
             descriptionDone = ['built binary debs', ]
         )
     )
