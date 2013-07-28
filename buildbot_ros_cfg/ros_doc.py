@@ -10,15 +10,14 @@ from helpers import success
 ## @brief Docbuild jobs build the source documentation. This isn't the whold documentation
 ##        that is on the wiki, like message docs, just the source documentation part.
 ## @param c The Buildmasterconfig
-## @param job_name Name for this job (typically the metapackage name)
-## @param packages List of packages to build.
+## @param job_name Name for this job (typically the repository/metapackage name)
 ## @param url URL of the SOURCE repository.
 ## @param branch Branch to checkout.
 ## @param distro Ubuntu distro to build for (for instance, 'precise')
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param machines List of machines this can build on.
-def ros_docbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, machines):
+def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
 
     # Directory which will be bind-mounted
     binddir = '/tmp/'+job_name+'_docbuild'
@@ -51,28 +50,27 @@ def ros_docbuild(c, job_name, packages, url, branch, distro, arch, rosdistro, ma
         )
     )
     # Build docs in a pbuilder
-    for package in packages:
-        f.addStep(
-            ShellCommand(
-                haltOnFailure = True,
-                name = package+'-docbuild',
-                command = ['sudo', 'cowbuilder', '--execute', Interpolate('%(prop:workdir)s/docbuild.py'),
-                           '--distribution', distro, '--architecture', arch,
-                           '--bindmounts', binddir,
-                           '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
-                           '--', binddir, rosdistro, package],
-                descriptionDone = ['docbuild', package]
-            )
+    f.addStep(
+        ShellCommand(
+            haltOnFailure = True,
+            name = job_name+'-docbuild',
+            command = ['sudo', 'cowbuilder', '--execute', Interpolate('%(prop:workdir)s/docbuild.py'),
+                       '--distribution', distro, '--architecture', arch,
+                       '--bindmounts', binddir,
+                       '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
+                       '--', binddir, rosdistro],
+            descriptionDone = ['built docs', ]
         )
-        # Upload docs to master
-        f.addStep(
-            DirectoryUpload(
-                name = package+'-upload',
-                slavesrc = binddir+'/doc/html',
-                masterdest = 'docs/'+package,
-                hideStepIf = success
-            )
+    )
+    # Upload docs to master
+    f.addStep(
+        DirectoryUpload(
+            name = job_name+'-upload',
+            slavesrc = binddir+'/docs',
+            masterdest = 'docs',
+            hideStepIf = success
         )
+    )
     c['builders'].append(
         BuilderConfig(
             name = job_name+'_'+rosdistro+'_docbuild',
