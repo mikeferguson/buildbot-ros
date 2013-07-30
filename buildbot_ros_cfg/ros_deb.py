@@ -128,7 +128,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
         f.addStep(
             Trigger(
                 schedulerNames = [t+'_'+rosdistro+'_'+distro+'_'+arch+'_debtrigger' for t in trigger_pkgs],
-                waitForFinish = False
+                waitForFinish = False,
+                alwaysRun=True
             )
         )
     # Create trigger

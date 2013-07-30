@@ -78,7 +78,8 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, tr
         f.addStep(
             Trigger(
                 schedulerNames = [t+'_'+rosdistro+'_doctrigger' for t in trigger_pkgs],
-                waitForFinish = False
+                waitForFinish = False,
+                alwaysRun=True
             )
         )
     # Create trigger
