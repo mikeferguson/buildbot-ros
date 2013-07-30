@@ -90,7 +90,7 @@ class RosDistroOracle:
     def getTrigger(self, repo_name, dist_name):
         i = self.build_order[dist_name]['jobs'].index(repo_name)
         try:
-            return self.build_order[dist_name]['jobs'][i+1]
+            return [self.build_order[dist_name]['jobs'][i+1], ]
         except:
             return None
 
