@@ -159,3 +159,8 @@ On the other machine:
 
     gpg --import key.gpg
     gpg --allow-secret-key-import --import secret.gpg
+
+###buildbot will only allow 1000 unique jobs
+This will prevent you from loading the entire ROS farm as is, unless different arch/code-name combinations
+are restricted to different buildbots. There is a monkey-patch available here:
+http://trac.buildbot.net/ticket/2045
