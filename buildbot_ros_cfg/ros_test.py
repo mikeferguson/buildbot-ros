@@ -58,7 +58,7 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
             branch = branch,
             alwaysUseLatest = True,
             mode = 'full',
-            workdir = binddir+'/src/'
+            workdir = binddir+'/src/'+job_name
         )
     )
     # Download testbuild.py script from master
