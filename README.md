@@ -12,9 +12,7 @@ affected.
 
 There are several 'builder' types available:
  * Debbuild - turns a gbp repository into a set of source and binary debs for a specific ROS distro
-   and Ubuntu release. This is currently run in a nightly build, with a pre-determined, hard-coded
-   dependency order. In the future, this should be triggered by rosdistro updates and use rosdistro
-   and catkin to determine the build order.
+   and Ubuntu release. This is currently run in a nightly build.
  * Testbuild - this is a standard continuous integration testing setup. Checks out a branch of a
    repository, builds, and runs tests using catkin. Triggered by a commit to the watched branch
    of the repository. In the future, this could also be triggered by a post commit hook giving even
@@ -47,12 +45,8 @@ APT repository. Docs are generated using _rosdoc_lite_
    metapackage, are built as one job per ROS/Ubuntu distribution combination.
 
 ###Known Limitations:
- * There is not yet a rosdistro tie-in to read the state of the rosdistro, determine updates, and
-   trigger updated jobs. This is planned, but not implemented. In the meantime, debian builds are
-   simply run nightly (and of course, are easily triggerable).
- * The order of dependencies between packages (and between repositories) must be specified in the
-   build configuration. In the future this should be read from a rosdistro file and automatically
-   generated, as done on the ROS buildfarm.
+ * While jobs are configured from a rosdistro, there currently isn't a scheduler that updates
+   based on rosdistro updates. This is planned, but not implemented.
  * Testbuild jobs only work on git repositories.
 
 ##Setup for Buildbot Master
@@ -149,7 +143,7 @@ at line 10. change 'exceptions' to 'exc':
 
     from sqlalchemy import exc as sa_exceptions
 
-###I need to move my key (also known as 'my server has all the entropy of a dead cow!')
+###I need to move my gpg key (also known as 'my server has all the entropy of a dead cow!')
 On the machine with the key
 
     gpg --output key.gpg --armor --export AAAABBBB
