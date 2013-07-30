@@ -66,7 +66,7 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
             # Add the binarydeb using reprepro updater script on master
             f.addStep(
                 MasterShellCommand(
-                    name = deb_name+'include',
+                    name = deb_name+'-include',
                     command = ['reprepro-include.bash', deb_name, Interpolate(debian_pkg), distro, deb_arch],
                     descriptionDone = ['updated in apt', debian_pkg]
                 )
