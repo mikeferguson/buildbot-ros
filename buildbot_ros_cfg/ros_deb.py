@@ -81,7 +81,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-stampdeb',
                 command = ['git-dch', '-a', '--ignore-branch', '--verbose',
                            '-N', Interpolate('%(prop:release_version:~'+version+')s-%(prop:datestamp)s'+distro)],
-                descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version:~'+version+')s'), Interpolate('%(prop:datestamp)s')]
+                descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version:~'+version+')s'),
+                                   Interpolate('%(prop:datestamp)s')]
             )
         )
         # download hooks
