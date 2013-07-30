@@ -36,7 +36,7 @@ def run_build_and_test(workspace, rosdistro):
     print('Examining build dependencies.')
     build_depends = []
     for pkg in pkgs.values():
-        for d in pkg.build_depends + pkg.buildtool_depends:
+        for d in pkg.build_depends + pkg.buildtool_depends + pkg.test_depends:
             if not d.name in build_depends and not d.name in building:
                 build_depends.append(d.name)
     print('Installing: %s' % ', '.join(build_depends))
@@ -61,15 +61,15 @@ def run_build_and_test(workspace, rosdistro):
     print('make tests')
     call(['make', 'tests'], ros_env)
 
-    # now install the test + run depends
-    print('Examining test/run dependencies.')
-    test_depends = []
+    # now install the run depends
+    print('Examining run dependencies.')
+    run_depends = []
     for pkg in pkgs.values():
-        for d in pkg.test_depends + pkg.run_depends:
-            if not d.name in test_depends and not d.name in building:
-                test_depends.append(d.name)
-    print('Installing: %s' % ', '.join(test_depends))
-    apt_get_install(rosdep.to_aptlist(test_depends))
+        for d in pkg.run_depends:
+            if not d.name in run_depends and not d.name in building:
+                run_depends.append(d.name)
+    print('Installing: %s' % ', '.join(run_depends))
+    apt_get_install(rosdep.to_aptlist(run_depends))
 
     # Run the tests
     print('make run_tests')
