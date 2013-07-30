@@ -6,6 +6,7 @@ from buildbot.steps.shell import ShellCommand, SetProperty
 from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
+from buildbot.schedulers import triggerable
 
 from helpers import success
 
@@ -19,7 +20,8 @@ from helpers import success
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param version Release version to build (for instance, '0.8.1-0')
 ## @param machines List of machines this can build on.
-def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_names = None):
+## @param trigger_pkgs List of packages names to trigger after our build is done.
+def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_pkgs = None):
     gbp_args = ['-uc', '-us', '--git-ignore-branch', '--git-ignore-new',
                 '--git-verbose', '--git-dist='+distro, '--git-arch='+arch]
     f = BuildFactory()
@@ -121,8 +123,20 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             )
         )
     # Trigger if needed
-    if trigger_names != None:
-        f.addStep( Trigger(schedulerNames = trigger_names, waitForFinish = False) )
+    if trigger_pkgs != None:
+        f.addStep(
+            Trigger(
+                schedulerNames = [t+'_'+rosdistro+'_'+distro+'_'+arch+'_debtrigger' for t in trigger_pkgs],
+                waitForFinish = False
+            )
+        )
+    # Create trigger
+    c['schedulers'].append(
+        triggerable.Triggerable(
+            name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debtrigger',
+            builderNames = [job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild',]
+        )
+    )
     # Add to builders
     c['builders'].append(
         BuilderConfig(
