@@ -126,6 +126,9 @@ def debbuilders_from_rosdistro(c, oracle, distro, builders):
     jobs = list()
 
     for name in rel.repositories.keys():
+        if rel.repositories[name].version == None:
+            print('Skipping %s, since it has no version' % name)
+            continue
         if rel.repositories[name].type != 'git':
             print('Cannot configure ros_debbuild for %s, as it is not a git repository' % name)
             continue
