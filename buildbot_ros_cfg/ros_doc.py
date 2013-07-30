@@ -4,6 +4,7 @@ from buildbot.process.properties import Interpolate
 from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand, SetProperty
 from buildbot.steps.transfer import DirectoryUpload, FileDownload
+from buildbot.schedulers import triggerable
 
 from helpers import success
 
@@ -17,7 +18,8 @@ from helpers import success
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param machines List of machines this can build on.
-def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
+## @param trigger_pkgs List of packages names to trigger after our build is done.
+def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, trigger_pkgs = None):
 
     # Directory which will be bind-mounted
     binddir = '/tmp/'+job_name+'_docbuild'
@@ -71,6 +73,22 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
             hideStepIf = success
         )
     )
+    # Trigger if needed
+    if trigger_pkgs != None:
+        f.addStep(
+            Trigger(
+                schedulerNames = [t+'_'+rosdistro+'_doctrigger' for t in trigger_pkgs],
+                waitForFinish = False
+            )
+        )
+    # Create trigger
+    c['schedulers'].append(
+        triggerable.Triggerable(
+            name = job_name+'_'+rosdistro+'_doctrigger',
+            builderNames = [job_name+'_'+rosdistro+'_docbuild',]
+        )
+    )
+    # Add builder config
     c['builders'].append(
         BuilderConfig(
             name = job_name+'_'+rosdistro+'_docbuild',
