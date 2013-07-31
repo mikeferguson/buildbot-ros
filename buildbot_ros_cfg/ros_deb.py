@@ -37,9 +37,9 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     # Need to build each package in order
     for package in packages:
         debian_pkg = 'ros-'+rosdistro+'-'+package.replace('_','-')  # debian package name (ros-groovy-foo)
-        branch_name = 'debian/'+debian_pkg+'_%(prop:release_version:~'+version+')s_'+distro  # release branch from bloom
-        deb_name = debian_pkg+'_%(prop:release_version:~'+version+')s'+distro
-        final_name = debian_pkg+'_%(prop:release_version:~'+version+')s-%(prop:datestamp)s'+distro+'_'+arch+'.deb'
+        branch_name = 'debian/'+debian_pkg+'_%(prop:release_version)s_'+distro  # release branch from bloom
+        deb_name = debian_pkg+'_%(prop:release_version)s'+distro
+        final_name = debian_pkg+'_%(prop:release_version)s-%(prop:datestamp)s'+distro+'_'+arch+'.deb'
         # Check out the proper tag. Use --force to delete changes from previous deb stamping
         f.addStep(
             ShellCommand(
@@ -80,8 +80,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 haltOnFailure = True,
                 name = package+'-stampdeb',
                 command = ['git-dch', '-a', '--ignore-branch', '--verbose',
-                           '-N', Interpolate('%(prop:release_version:~'+version+')s-%(prop:datestamp)s'+distro)],
-                descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version:~'+version+')s'),
+                           '-N', Interpolate('%(prop:release_version)s-%(prop:datestamp)s'+distro)],
+                descriptionDone = ['stamped changelog', Interpolate('%(prop:release_version)s'),
                                    Interpolate('%(prop:datestamp)s')]
             )
         )
@@ -143,6 +143,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     c['builders'].append(
         BuilderConfig(
             name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild',
+            properties = {'release_version' : version},
             slavenames = machines,
             factory = f
         )
