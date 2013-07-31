@@ -204,6 +204,8 @@ class RosDepResolver:
     def to_apt(self, ros_entry):
         if ros_entry not in self.r2a:
             print('Could not find %s in keys.' % ros_entry)
+            # horrible hack, that assumes missing deps are actually unlisted, private catkin packages
+            return ['ros-'+self.env['ROS_DISTRO']+'-'+ros_entry.replace('_','-'),]
         return self.r2a[ros_entry]
 
     def to_aptlist(self, ros_entries):
