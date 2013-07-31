@@ -60,6 +60,7 @@ Create a user 'buildbot', log in as that user, and do the following:
     virtualenv --no-site-packages buildbot-env
     source buildbot-env/bin/activate
     easy_install buildbot
+    pip install rosdistro
     git clone git@github.com:mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
 
