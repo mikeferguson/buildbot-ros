@@ -235,4 +235,7 @@ if __name__=="__main__":
         print('')
         exit(-1)
     workspace = sys.argv[1] # for cleanup
-    run_build_and_test(sys.argv[1], sys.argv[2])
+    try:
+        run_build_and_test(sys.argv[1], sys.argv[2])
+    except Exception as e:
+        raise BuildException(str(e))
