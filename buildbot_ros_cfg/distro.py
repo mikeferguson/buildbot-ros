@@ -46,7 +46,9 @@ class RosDistroOracle:
                 if release.repositories[release.packages[pkg].repository_name].version == None:
                     continue
                 pkg_depends[pkg] = list()
-                depends = walker.get_depends(pkg, 'build') | walker.get_depends(pkg, 'buildtool')
+                depends = walker.get_depends(pkg, 'buildtool') |
+                          walker.get_depends(pkg, 'build') |
+                          walker.get_depends(pkg, 'run')
                 for dp in depends:
                     if dp in packages:
                         pkg_depends[pkg].append(dp)
