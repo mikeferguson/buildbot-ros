@@ -36,7 +36,8 @@ projects pretty well.
 Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_ is still used to
 create gbp releases. _git-buildpackage_ is used to generate debians from the _Bloom_ releases,
 using _cowbuilder_ to build in a chroot rather than _pbuilder_. _reprepro_ is used to update the
-APT repository. Docs are generated using _rosdoc_lite_
+APT repository. Docs are generated using _rosdoc_lite_. The build is defined by a _rosdistro_
+repository, and we use the _python-rosdistro_ package to parse it.
 
 ###Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a
@@ -48,6 +49,12 @@ APT repository. Docs are generated using _rosdoc_lite_
  * While jobs are configured from a rosdistro, there currently isn't a scheduler that updates
    based on rosdistro updates. This is planned, but not implemented.
  * Testbuild jobs only work on git repositories.
+
+##Setup of ROSdistro
+Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
+in [REP137](http://ros.org/reps/rep-0137.html). You'll need at least an index.yaml and one set of
+distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). An example of a very simple
+build for a single repository can be found in TODO.
 
 ##Setup for Buildbot Master
 Install prerequisites:
