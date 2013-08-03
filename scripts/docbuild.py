@@ -16,7 +16,8 @@ def run_docbuild(workspace, rosdistro):
           'ros-%s-rosdoc-lite'%rosdistro,
           'doxygen',
           'python-epydoc',
-          'python-sphinx'])
+          'python-sphinx',
+          'graphviz'])
 
     if os.path.exists(os.path.join(workspace, 'docs')):
         shutil.rmtree(os.path.join(workspace, 'docs'))
