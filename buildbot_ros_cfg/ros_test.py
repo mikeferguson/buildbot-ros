@@ -21,7 +21,9 @@ from helpers import success
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param machines List of machines this can build on.
-def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
+## @param othermirror Cowbuilder othermirror parameter
+## @param keys List of keys that cowbuilder will need
+def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, othermirror, keys):
 
     # Change source is simply a GitPoller
     # TODO: make this configurable for svn/etc
@@ -73,7 +75,7 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
     # Update the cowbuilder
     f.addStep(
         ShellCommand(
-            command = ['cowbuilder-update.py', distro, arch],
+            command = ['cowbuilder-update.py', distro, arch] + keys,
             hideStepIf = success
         )
     )
@@ -85,6 +87,7 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
                        '--distribution', distro, '--architecture', arch,
                        '--bindmounts', binddir,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
+                       '--override-config', '--othermirror', othermirror,
                        '--', binddir, rosdistro],
             logfiles = {'tests' : binddir+'/testresults' },
             descriptionDone = ['make and test', job_name]

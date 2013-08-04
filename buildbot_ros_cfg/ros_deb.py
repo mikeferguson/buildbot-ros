@@ -20,8 +20,10 @@ from helpers import success
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param version Release version to build (for instance, '0.8.1-0')
 ## @param machines List of machines this can build on.
+## @param othermirror Cowbuilder othermirror parameter
+## @param keys List of keys that cowbuilder will need
 ## @param trigger_pkgs List of packages names to trigger after our build is done.
-def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, machines, trigger_pkgs = None):
+def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, machines, othermirror, keys, trigger_pkgs = None):
     gbp_args = ['-uc', '-us', '--git-ignore-branch', '--git-ignore-new',
                 '--git-verbose', '--git-dist='+distro, '--git-arch='+arch]
     f = BuildFactory()
@@ -37,7 +39,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     # Update the cowbuilder
     f.addStep(
         ShellCommand(
-            command = ['cowbuilder-update.py', distro, arch],
+            command = ['cowbuilder-update.py', distro, arch] + keys,
             hideStepIf = success
         )
     )
@@ -109,7 +111,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-buildbinary',
                 command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
                            Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
-                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS': Interpolate('--hookdir %(prop:workdir)s/hooks')},
+                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS':
+                       Interpolate('--hookdir %(prop:workdir)s/hooks --override-config --othermirror '+othermirror) },
                 descriptionDone = ['binarydeb', package]
             )
         )

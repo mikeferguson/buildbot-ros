@@ -33,6 +33,7 @@ class RosDistroOracle:
             self.releases[dist_name] = get_cached_release(index, dist_name, cache = cache, allow_lazy_load = True)
 
         self.build_order = {}
+        self.build_files = {}
         for dist_name in distro_names:
             self.build_order[dist_name] = dict()
 
@@ -78,6 +79,12 @@ class RosDistroOracle:
 
             self.build_order[dist_name]['jobs'] = order
 
+            self.build_files[dist_name] = dict()
+            # TODO: this is a bit hacky, come up with a better way to get 'correct' build
+            self.build_files[dist_name]['release'] = get_release_build_files(self.index, dist_name)[0]
+            self.build_files[dist_name]['source'] = get_source_build_files(self.index, dist_name)[0]
+            self.build_files[dist_name]['doc'] = get_doc_build_files(self.index, dist_name)[0]
+
     ## @brief Get the order to build debian packages within a single repository
     def getPackageOrder(self, repo_name, dist_name):
         return self.build_order[dist_name][repo_name]
@@ -105,6 +112,19 @@ class RosDistroOracle:
     ## @brief Get the list of ROS distribution names
     def getDistroNames(self):
         return self.distros
+
+    ## @brief Get the mirrors for release jobs
+    ## @param build The type of the build, 'release', 'source', or 'doc'
+    def getOtherMirror(self, build, rosdistro, distro):
+        build_file = self.build_files[rosdistro][build]
+        mirrors = build_file.get_target_configuration()['apt_mirrors']
+        return '\n'.join(['deb '+mirror+' '+distro+' main |' for mirror in mirrors])
+
+    ## @brief Get the keys for release jobs
+    ## @param build The type of the build, 'release', 'source', or 'doc'
+    def getKeys(self, build, rosdistro):
+        build_file = self.build_files[rosdistro][build]
+        return build_file.get_target_configuration()['apt_keys']
 
     def _insert(self, name, depends, order):
         for i in range(len(order)):
@@ -146,6 +166,8 @@ def debbuilders_from_rosdistro(c, oracle, distro, builders):
                                                  distro,
                                                  rel.repositories[name].version,  # release_version
                                                  builders,
+                                                 oracle.getOtherMirror('release', distro, code_name),
+                                                 oracle.getKeys('release', distro),
                                                  oracle.getTrigger(name, distro)))
     return jobs
 
@@ -176,7 +198,9 @@ def testbuilders_from_rosdistro(c, oracle, distro, builders):
                                                   code_name,
                                                   arch,
                                                   distro,
-                                                  builders
+                                                  builders,
+                                                  oracle.getOtherMirror('source', distro, code_name),
+                                                  oracle.getKeys('source', distro),
                                                   ))
     return jobs
 
@@ -208,5 +232,7 @@ def docbuilders_from_rosdistro(c, oracle, distro, builders):
                                                  arch,
                                                  distro,
                                                  builders,
+                                                 oracle.getOtherMirror('doc', distro, code_name),
+                                                 oracle.getKeys('doc', distro),
                                                  oracle.getTrigger(name, distro)))
     return jobs

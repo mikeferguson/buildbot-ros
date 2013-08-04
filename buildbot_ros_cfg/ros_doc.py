@@ -18,8 +18,10 @@ from helpers import success
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param rosdistro ROS distro (for instance, 'groovy')
 ## @param machines List of machines this can build on.
+## @param othermirror Cowbuilder othermirror parameter
+## @param keys List of keys that cowbuilder will need
 ## @param trigger_pkgs List of packages names to trigger after our build is done.
-def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, trigger_pkgs = None):
+def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, othermirror, keys, trigger_pkgs = None):
 
     # Directory which will be bind-mounted
     binddir = '/tmp/'+job_name+'_docbuild'
@@ -54,7 +56,7 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, tr
     # Update the cowbuilder
     f.addStep(
         ShellCommand(
-            command = ['cowbuilder-update.py', distro, arch],
+            command = ['cowbuilder-update.py', distro, arch] + keys,
             hideStepIf = success
         )
     )
@@ -67,6 +69,7 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, tr
                        '--distribution', distro, '--architecture', arch,
                        '--bindmounts', binddir,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
+                       '--override-config', '--othermirror', othermirror,
                        '--', binddir, rosdistro],
             descriptionDone = ['built docs', ]
         )
