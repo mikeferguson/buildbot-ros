@@ -51,7 +51,14 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, tr
             hideStepIf = success
         )
     )
-    # Build docs in a pbuilder
+    # Update the cowbuilder
+    f.addStep(
+        ShellCommand(
+            command = ['cowbuilder-update.py', distro, arch],
+            hideStepIf = success
+        )
+    )
+    # Build docs in a cowbuilder
     f.addStep(
         ShellCommand(
             haltOnFailure = True,

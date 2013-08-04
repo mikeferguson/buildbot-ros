@@ -70,7 +70,14 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines):
             hideStepIf = success
         )
     )
-    # Make and run tests in a pbuilder
+    # Update the cowbuilder
+    f.addStep(
+        ShellCommand(
+            command = ['cowbuilder-update.py', distro, arch],
+            hideStepIf = success
+        )
+    )
+    # Make and run tests in a cowbuilder
     f.addStep(
         TestBuild(
             name = job_name+'-build',

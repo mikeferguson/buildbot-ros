@@ -34,6 +34,13 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             mode = 'full' # clean out old versions
         )
     )
+    # Update the cowbuilder
+    f.addStep(
+        ShellCommand(
+            command = ['cowbuilder-update.py', distro, arch],
+            hideStepIf = success
+        )
+    )
     # Need to build each package in order
     for package in packages:
         debian_pkg = 'ros-'+rosdistro+'-'+package.replace('_','-')  # debian package name (ros-groovy-foo)
