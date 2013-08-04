@@ -54,7 +54,7 @@ repository, and we use the _python-rosdistro_ package to parse it.
 Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
 in [REP137](http://ros.org/reps/rep-0137.html). You'll need at least an index.yaml and one set of
 distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). An example of a very simple
-build for a single repository can be found in TODO.
+build for a single repository can be found in https://github.com/mikeferguson/rosdistro-buildbot-example.
 
 ##Setup for Buildbot Master
 Install prerequisites:
