@@ -25,10 +25,16 @@ deb http://archive.ubuntu.com/ubuntu DISTRO-backports main universe |
 deb http://archive.ubuntu.com/ubuntu DISTRO-security main universe |
 deb http://archive.ubuntu.com/ubuntu DISTRO-updates main universe | """.replace('DISTRO', distro)
 
+def getKeyCommands(keys):
+    if len(keys) == 0:
+        return ""
+    return '\n'.join(['wget '+key+' -O- | apt-key add -' for key in keys])+'\n'
+
 ## @brief Make a cowbuilder, if one does not exist
 ## @param distro The UBUNTU distribution (for instance, 'precise')
 ## @param arch The architecture (for instance, 'amd64')
-def make_cowbuilder(distro, arch):
+## @param keys List of keys to get
+def make_cowbuilder(distro, arch, keys):
     if not os.path.exists(basepath(distro, arch)):
         # create the cowbuilder
         call(['sudo', 'cowbuilder', '--create',
@@ -38,27 +44,26 @@ def make_cowbuilder(distro, arch):
               '--debootstrapopts', arch,
               '--basepath', basepath(distro, arch),
               '--othermirror', defaultmirrors(distro)])
-
-        # login and install wget (for later adding keys)
-        command = ['sudo', 'cowbuilder', '--login',
-                   '--save-after-login',
-                   '--distribution', distro,
-                   '--architecture', arch,
-                   '--basepath', basepath(distro, arch)]
-                   #'--othermirror', defaultmirrors(distro)]
-        print('Executing command "%s"' % ' '.join(command))
-        cowbuilder = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = cowbuilder.communicate(input="""echo "Installing wget"
-    apt-get install wget -y
-    echo "exiting"
-    exit
-    """)
-        print(output[0])
-        if cowbuilder.returncode != 0:
-            exit(cowbuilder.returncode)
-
     else:
         print('cowbuilder already exists for %s-%s' % (distro, arch))
+
+    # login and install wget (for later adding keys)
+    command = ['sudo', 'cowbuilder', '--login',
+               '--save-after-login',
+               '--distribution', distro,
+               '--architecture', arch,
+               '--basepath', basepath(distro, arch)]
+               #'--othermirror', defaultmirrors(distro)]
+    print('Executing command "%s"' % ' '.join(command))
+    cowbuilder = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = cowbuilder.communicate(input="""echo "Installing wget"
+apt-get install wget -y
+"""+getKeyCommands(keys)+"""echo "exiting"
+exit
+""")
+    print(output[0])
+    if cowbuilder.returncode != 0:
+        exit(cowbuilder.returncode)
 
     # update
     print('updating cowbuilder')
@@ -75,4 +80,7 @@ if __name__=="__main__":
         exit(-1)
     distro = sys.argv[1]
     arch = sys.argv[2]
-    make_cowbuilder(distro, arch)
+    if len(sys.argv) > 3:
+        make_cowbuilder(distro, arch, sys.argv[3:])
+    else:
+        make_cowbuilder(distro, arch, [])
