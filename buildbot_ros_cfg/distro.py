@@ -117,14 +117,18 @@ class RosDistroOracle:
     ## @param build The type of the build, 'release', 'source', or 'doc'
     def getOtherMirror(self, build, rosdistro, distro):
         build_file = self.build_files[rosdistro][build]
-        mirrors = build_file.get_target_configuration()['apt_mirrors']
-        return '\n'.join(['deb '+mirror+' '+distro+' main |' for mirror in mirrors])
+        #TODO: source, doc should be updated to allow this:
+        #mirrors = build_file.get_target_configuration()['apt_mirrors']
+        mirrors = build_file._targets['_config']['apt_mirrors']
+        return '\n'.join(['deb '+mirror+' '+distro+' main |' for mirror in mirrors])+'\ndeb http://archive.ubuntu.com/ubuntu '+distro+' main universe'
 
     ## @brief Get the keys for release jobs
     ## @param build The type of the build, 'release', 'source', or 'doc'
     def getKeys(self, build, rosdistro):
         build_file = self.build_files[rosdistro][build]
-        return build_file.get_target_configuration()['apt_keys']
+        #TODO: source, doc should be updated to allow this:
+        #return build_file.get_target_configuration()['apt_keys']
+        return build_file._targets['_config']['apt_keys']
 
     def _insert(self, name, depends, order):
         for i in range(len(order)):

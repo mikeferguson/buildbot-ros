@@ -111,8 +111,9 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 name = package+'-buildbinary',
                 command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
                            Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
-                env = {'DIST': distro, 'GIT_PBUILDER_OPTIONS':
-                       Interpolate('--hookdir %(prop:workdir)s/hooks --override-config --othermirror '+othermirror) },
+                env = {'DIST': distro,
+                       'GIT_PBUILDER_OPTIONS': Interpolate('--hookdir %(prop:workdir)s/hooks --override-config'),
+                       'OTHERMIRROR': othermirror },
                 descriptionDone = ['binarydeb', package]
             )
         )
