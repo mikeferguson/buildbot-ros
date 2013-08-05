@@ -137,14 +137,7 @@ we define rosbuilder1 and 2. To start the slave:
 
     buildslave start rosbuilder1
 
-For builds to succeed, you'll need to create a cowbuilder on the local machine. You will need to
-run the script once for each architecture and distribution of Ubuntu that you want to build for:
-
-    cd /home/buildbot/buildbot-ros/scripts
-    sudo ./cowbuilder-create.bash precise amd64
-
-##Known Issues, Hacks, Tricks and Workarounds
-###pbuilder requires sudo privilege
+For builds to succeed, you'll probably need to make it so the buildbot can run cowbuilder as root.
 The best way around this is to allow the 'buildbot' user to execute git-buildpackage and
 pbuilder/cowbuilder without a password, by adding the following to your /etc/sudoers file
 (be sure to use visudo):
@@ -153,6 +146,7 @@ pbuilder/cowbuilder without a password, by adding the following to your /etc/sud
 
 Note that there is a TAB between buildbot and ALL.
 
+##Known Issues, Hacks, Tricks and Workarounds
 ###easy_install version of sqlalchemy causes buildbot scripts to fail
 This is an incompatibility between version 0.7.x of sqlalchemy-migrate and 0.8 of sqlalchemy. The
 quick fix is to edit a file in your virtualenv. In
