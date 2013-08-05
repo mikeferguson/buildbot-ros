@@ -19,11 +19,7 @@ def basepath(distro, arch):
 
 def defaultmirrors(distro):
     # cowdancer is in universe?
-    return """
-deb http://archive.ubuntu.com/ubuntu DISTRO main universe |
-deb http://archive.ubuntu.com/ubuntu DISTRO-backports main universe |
-deb http://archive.ubuntu.com/ubuntu DISTRO-security main universe |
-deb http://archive.ubuntu.com/ubuntu DISTRO-updates main universe | """.replace('DISTRO', distro)
+    return "deb http://archive.ubuntu.com/ubuntu DISTRO main universe".replace('DISTRO', distro)
 
 def getKeyCommands(keys):
     if len(keys) == 0:
