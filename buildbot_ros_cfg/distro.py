@@ -120,7 +120,7 @@ class RosDistroOracle:
         #TODO: source, doc should be updated to allow this:
         #mirrors = build_file.get_target_configuration()['apt_mirrors']
         mirrors = build_file._targets['_config']['apt_mirrors']
-        return '\n'.join(['deb '+mirror+' '+distro+' main |' for mirror in mirrors])+'\ndeb http://archive.ubuntu.com/ubuntu '+distro+' main universe'
+        return '\n'.join(['deb '+mirror.replace('DISTRO',distro)+' |' for mirror in mirrors])
 
     ## @brief Get the keys for release jobs
     ## @param build The type of the build, 'release', 'source', or 'doc'

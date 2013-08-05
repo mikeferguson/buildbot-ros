@@ -53,18 +53,29 @@ repository, and we use the _python-rosdistro_ package to parse it.
 ##Setup of ROSdistro
 Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
 in [REP137](http://ros.org/reps/rep-0137.html). You'll need an index.yaml and at least one set of
-distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). An example of a very simple
-build for a single repository can be found in https://github.com/mikeferguson/rosdistro-buildbot-example.
+distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). A complete example of a
+simple build configuration for a single repository can be found in
+https://github.com/mikeferguson/rosdistro-buildbot-example.
+
 In addition to the usual aspects of the files, we extensively use apt_mirrors, and a new key
 apt_keys. These should be setup to a list of APT mirrors and set of keys to pull for these mirrors.
 The mirrors will be passed to the cowbuilder using the _--othermirror_ option, while the keys will
-be fetched and stored during the cowbuilder setup step. The rosdistro tools need a cache, to create
-the cache, you can use:
+be fetched and stored during the cowbuilder setup step. The format of the apt_mirrors is important,
+the format should be:
+
+    http://location DISTRO main othersections
+
+The DISTRO will be replaced by the actual building distribution at build time. At a minimum, you
+will want an Ubuntu archive, the ROS archive, and your building archive. The Ubuntu archive should
+include universe if you want to run docbuilders.
+
+The rosdistro tools need a path to cache. While buildbot-ros does not require a cache to operate,
+creating one can greatly speed up startup of the buildbot master. To create the cache, you can use:
 
     rosdistro_build_cache path_to_index.yaml
 
 And then upload this to the destination of the cache. Currently, buildbot-ros does not update the
-cache.
+cache automatically.
 
 ##Setup for Buildbot Master
 Install prerequisites:
