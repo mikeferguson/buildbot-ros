@@ -17,7 +17,9 @@ from helpers import success
 ## @param distro Ubuntu distro to build for (for instance, 'precise')
 ## @param arch Architecture to build for (for instance, 'amd64')
 ## @param machines List of machines this can build on.
-def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machines, trigger_names = None):
+## @param othermirror Cowbuilder othermirror parameter
+## @param keys List of keys that cowbuilder will need
+def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machines, othermirror, keys, trigger_names = None):
     f = BuildFactory()
     # Grab the source package
     f.addStep(
@@ -40,7 +42,7 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
     # Update the cowbuilder
     f.addStep(
         ShellCommand(
-            command = ['cowbuilder-update.py', distro, arch],
+            command = ['cowbuilder-update.py', distro, arch] + keys,
             hideStepIf = success
         )
     )
@@ -54,7 +56,9 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
                        '--distribution', distro, '--architecture', arch,
                        '--basepath', '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow',
                        '--buildresult', Interpolate('%(prop:workdir)s'),
-                       '--hookdir', Interpolate('%(prop:workdir)s/hooks')],
+                       '--hookdir', Interpolate('%(prop:workdir)s/hooks'),
+                       '--othermirror', othermirror,
+                       '--override-config'],
             descriptionDone = ['built binary debs', ]
         )
     )
