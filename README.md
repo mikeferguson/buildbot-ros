@@ -52,9 +52,19 @@ repository, and we use the _python-rosdistro_ package to parse it.
 
 ##Setup of ROSdistro
 Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
-in [REP137](http://ros.org/reps/rep-0137.html). You'll need at least an index.yaml and one set of
+in [REP137](http://ros.org/reps/rep-0137.html). You'll need an index.yaml and at least one set of
 distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). An example of a very simple
 build for a single repository can be found in https://github.com/mikeferguson/rosdistro-buildbot-example.
+In addition to the usual aspects of the files, we extensively use apt_mirrors, and a new key
+apt_keys. These should be setup to a list of APT mirrors and set of keys to pull for these mirrors.
+The mirrors will be passed to the cowbuilder using the _--othermirror_ option, while the keys will
+be fetched and stored during the cowbuilder setup step. The rosdistro tools need a cache, to create
+the cache, you can use:
+
+    rosdistro_build_cache path_to_index.yaml
+
+And then upload this to the destination of the cache. Currently, buildbot-ros does not update the
+cache.
 
 ##Setup for Buildbot Master
 Install prerequisites:
@@ -127,14 +137,7 @@ we define rosbuilder1 and 2. To start the slave:
 
     buildslave start rosbuilder1
 
-For builds to succeed, you'll need to create a cowbuilder on the local machine. You will need to
-run the script once for each architecture and distribution of Ubuntu that you want to build for:
-
-    cd /home/buildbot/buildbot-ros/scripts
-    sudo ./cowbuilder-create.bash precise amd64
-
-##Known Issues, Hacks, Tricks and Workarounds
-###pbuilder requires sudo privilege
+For builds to succeed, you'll probably need to make it so the buildbot can run cowbuilder as root.
 The best way around this is to allow the 'buildbot' user to execute git-buildpackage and
 pbuilder/cowbuilder without a password, by adding the following to your /etc/sudoers file
 (be sure to use visudo):
@@ -143,6 +146,7 @@ pbuilder/cowbuilder without a password, by adding the following to your /etc/sud
 
 Note that there is a TAB between buildbot and ALL.
 
+##Known Issues, Hacks, Tricks and Workarounds
 ###easy_install version of sqlalchemy causes buildbot scripts to fail
 This is an incompatibility between version 0.7.x of sqlalchemy-migrate and 0.8 of sqlalchemy. The
 quick fix is to edit a file in your virtualenv. In

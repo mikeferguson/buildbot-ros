@@ -37,6 +37,13 @@ def launchpad_debbuild(c, package, version, binaries, url, distro, arch, machine
             mode = 0777 # make this executable for the cowbuilder
         )
     )
+    # Update the cowbuilder
+    f.addStep(
+        ShellCommand(
+            command = ['cowbuilder-update.py', distro, arch],
+            hideStepIf = success
+        )
+    )
     # Build it
     f.addStep(
         ShellCommand(
