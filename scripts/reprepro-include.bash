@@ -15,7 +15,7 @@ export DISTRO=${3}
 export ARCH=${4}
 
 # invalidate dependent
-reprepro -V -b $REPO_DIR removefilter $DISTRO "Package (% ros-* ), Architecture (==$ARCH), (Depends (% *$PKG[, ]* ) | Depends (% *$PKG ) )"
+reprepro -V -b $REPO_DIR removefilter $DISTRO "Package (% * ), Architecture (==$ARCH), (Depends (% *$PKG[, ]* ) | Depends (% *$PKG ) )"
 
 # invalidate this package
 reprepro -V -b $REPO_DIR removefilter $DISTRO "Package (==$PKG), Architecture (==$ARCH)"
