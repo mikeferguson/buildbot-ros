@@ -115,12 +115,25 @@ class RosDistroOracle:
 
     ## @brief Get the mirrors for release jobs
     ## @param build The type of the build, 'release', 'source', or 'doc'
+    ## @param rosdistro The rosdistro name, 'groovy'
+    ## @param distro The Ubuntu distro, 'precise'
     def getOtherMirror(self, build, rosdistro, distro):
         build_file = self.build_files[rosdistro][build]
         #TODO: source, doc should be updated to allow this:
         #mirrors = build_file.get_target_configuration()['apt_mirrors']
         mirrors = build_file._targets['_config']['apt_mirrors']
         return '\n'.join(['deb '+mirror.replace('DISTRO',distro)+' |' for mirror in mirrors])
+
+    ## @brief Get the mirrors that need to be bind mounted
+    ## @param build The type of the build, 'release', 'source', or 'doc'
+    ## @param rosdistro The rosdistro name, 'groovy'
+    ## @param distro The Ubuntu distro, 'precise'
+    def getBindMirrors(self, build, rosdistro, distro):
+        build_file = self.build_files[rosdistro][build]
+        #TODO: source, doc should be updated to allow this:
+        #mirrors = build_file.get_target_configuration()['apt_mirrors']
+        mirrors = build_file._targets['_config']['apt_mirrors']
+        return ' '.join([m[7:m.find(' ')] for m in mirrors if m.startswith('file://')])
 
     ## @brief Get the keys for release jobs
     ## @param build The type of the build, 'release', 'source', or 'doc'
@@ -136,7 +149,6 @@ class RosDistroOracle:
                 order.insert(len(order)-i, name)
                 return
         order.insert(0, name)
-
 
 ## @brief Create debbuilders from release file
 ## @param c The Buildmasterconfig
