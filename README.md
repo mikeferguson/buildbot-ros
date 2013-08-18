@@ -29,8 +29,6 @@ There are also several builders that are not directly related to ROS, but genera
    into binaries, however, it can be used with any sourcedeb source.
 
 Clearly, this is still a work in progress, but setup is fairly quick for a small set of projects.
-By adding rosdistro parsing and automatic job configuration, this framework could also do much
-projects pretty well.
 
 ##Comparison with ROS buildfarm
 Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_ is still used to
@@ -47,8 +45,10 @@ repository, and we use the _python-rosdistro_ package to parse it.
 
 ###Known Limitations:
  * While jobs are configured from a rosdistro, there currently isn't a scheduler that updates
-   based on rosdistro updates. This is planned, but not implemented.
- * Testbuild jobs only work on git repositories.
+   based on rosdistro updates (See #3). This is planned, but not implemented. Currently, you can
+   make do by having a nightly cronjob that runs 'restart' on the buildbot instance.
+ * file:/// repositories are not yet actually being bind-mounted (#10)
+ * Test and doc jobs only work on git repositories.
 
 ##Setup of ROSdistro
 Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
