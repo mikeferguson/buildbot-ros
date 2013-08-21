@@ -67,7 +67,7 @@ the format should be:
 
 The DISTRO will be replaced by the actual building distribution at build time. At a minimum, you
 will want an Ubuntu archive, the ROS archive, and your building archive. The Ubuntu archive should
-include universe if you want to run docbuilders.
+include the _universe_ section if you want to run docbuilders.
 
 The rosdistro tools need a path to cache. While buildbot-ros does not require a cache to operate,
 creating one can greatly speed up startup of the buildbot master. To create the cache, you can use:
