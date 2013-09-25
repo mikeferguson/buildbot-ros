@@ -12,6 +12,30 @@ from buildbot.schedulers import basic
 from buildbot.status import results
 from helpers import success
 
+from buildbot.changes import base
+
+## @brief Work around for GitPoller not allowing two instances
+class NamedGitPoller(GitPoller):
+    def __init__(self, repourl, name, branches=None, branch=None,
+                 workdir=None, pollInterval=10*60,
+                 gitbin='git', usetimestamps=True,
+                 category=None, project=None,
+                 encoding='utf-8'):
+        base.PollingChangeSource.__init__(self, name=name+'_'+repourl,
+                pollInterval=pollInterval)
+
+        self.repourl = repourl
+        self.branches = branches
+        self.encoding = encoding
+        self.gitbin = gitbin
+        self.workdir = workdir
+        self.usetimestamps = usetimestamps
+        self.category = category
+        self.project = project
+        self.changeCount = 0
+        self.lastRev = {}
+        self.workdir = name+'_gitpoller-work'
+
 ## @brief Testbuild jobs are used for Continuous Integration testing of the source repo.
 ## @param c The Buildmasterconfig
 ## @param job_name Name for this job (typically the metapackage name)
@@ -28,8 +52,9 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, o
     # Change source is simply a GitPoller
     # TODO: make this configurable for svn/etc
     c['change_source'].append(
-        GitPoller(
+        NamedGitPoller(
             repourl = url,
+            name = rosdistro,
             branch = branch,
             project = job_name+'_'+rosdistro+'_testbuild'
         )
