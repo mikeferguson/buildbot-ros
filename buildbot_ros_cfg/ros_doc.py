@@ -4,6 +4,7 @@ from buildbot.process.properties import Interpolate
 from buildbot.steps.source.git import Git
 from buildbot.steps.shell import ShellCommand, SetProperty
 from buildbot.steps.transfer import DirectoryUpload, FileDownload
+from buildbot.steps.trigger import Trigger
 from buildbot.schedulers import triggerable
 
 from helpers import success
