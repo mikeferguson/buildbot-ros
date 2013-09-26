@@ -80,7 +80,7 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, ot
         DirectoryUpload(
             name = job_name+'-upload',
             slavesrc = binddir+'/docs',
-            masterdest = 'docs',
+            masterdest = 'docs/' + rosdistro,
             hideStepIf = success
         )
     )
