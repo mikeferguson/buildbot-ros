@@ -24,6 +24,13 @@ class NamedGitPoller(GitPoller):
         base.PollingChangeSource.__init__(self, name=name+'_'+repourl,
                 pollInterval=pollInterval)
 
+        if branch and branches:
+            config.error("NamedGitPoller: can't specify both branch and branches")
+        elif branch:
+            branches = [branch]
+        elif not branches:
+            branches = ['master']
+
         self.repourl = repourl
         self.branches = branches
         self.encoding = encoding
