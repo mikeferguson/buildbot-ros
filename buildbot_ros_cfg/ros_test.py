@@ -75,7 +75,7 @@ def ros_testbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, o
     )
 
     # Directory which will be bind-mounted
-    binddir = '/tmp/'+job_name+'_testbuild'
+    binddir = '/tmp/'+job_name+'_'+rosdistro+'_testbuild'
 
     f = BuildFactory()
     # Remove any old crud in /tmp folder

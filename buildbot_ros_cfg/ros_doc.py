@@ -25,7 +25,7 @@ from helpers import success
 def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, othermirror, keys, trigger_pkgs = None):
 
     # Directory which will be bind-mounted
-    binddir = '/tmp/'+job_name+'_docbuild'
+    binddir = '/tmp/'+job_name+'_'+rosdistro+'_docbuild'
 
     f = BuildFactory()
     # Remove any old crud in /tmp folder
