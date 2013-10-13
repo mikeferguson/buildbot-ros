@@ -88,7 +88,7 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, ot
     if trigger_pkgs != None:
         f.addStep(
             Trigger(
-                schedulerNames = [t+'_'+rosdistro+'_doctrigger' for t in trigger_pkgs],
+                schedulerNames = [t.replace('_','-')+'-'+rosdistro+'-doctrigger' for t in trigger_pkgs],
                 waitForFinish = False,
                 alwaysRun=True
             )
@@ -96,7 +96,7 @@ def ros_docbuild(c, job_name, url, branch, distro, arch, rosdistro, machines, ot
     # Create trigger
     c['schedulers'].append(
         triggerable.Triggerable(
-            name = job_name+'_'+rosdistro+'_doctrigger',
+            name = job_name.replace('_','-')+'-'+rosdistro+'-doctrigger',
             builderNames = [job_name+'_'+rosdistro+'_docbuild',]
         )
     )

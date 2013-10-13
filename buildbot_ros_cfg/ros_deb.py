@@ -138,7 +138,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     if trigger_pkgs != None:
         f.addStep(
             Trigger(
-                schedulerNames = [t+'_'+rosdistro+'_'+distro+'_'+arch+'_debtrigger' for t in trigger_pkgs],
+                schedulerNames = [t.replace('_','-')+'-'+rosdistro+'-'+distro+'-'+arch+'-debtrigger' for t in trigger_pkgs],
                 waitForFinish = False,
                 alwaysRun=True
             )
@@ -146,7 +146,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     # Create trigger
     c['schedulers'].append(
         triggerable.Triggerable(
-            name = job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debtrigger',
+            name = job_name.replace('_','-')+'-'+rosdistro+'-'+distro+'-'+arch+'-debtrigger',
             builderNames = [job_name+'_'+rosdistro+'_'+distro+'_'+arch+'_debbuild',]
         )
     )
