@@ -24,23 +24,40 @@ def run_docbuild(workspace, rosdistro):
 
     ros_env = get_ros_env('/opt/ros/%s/setup.bash' % rosdistro)
 
-    # Get a list of packages in our workspace
-    packages = list()
+    # Generate a dictionary of package name -> source path
+    package_path = dict()
     for f in os.listdir( os.path.join(workspace, 'src') ):
-        print('Considering ' + os.path.join(workspace, 'src', f, 'package.xml'))
-        if os.path.exists( os.path.join(workspace, 'src', f, 'package.xml') ):
-            packages.append(f)
-    print('Generating docs for: ' + ' '.join(packages))
+        search_for_packages(f, os.path.join(workspace, 'src'), package_path)
+    print('Generating docs for: ' + ' '.join(package_path.keys()))
 
     # For each package, call rosdoc_lite
-    for package in packages:
+    for package, path in package_path.iteritems():
         call([ 'rosdoc_lite',
-               os.path.join(workspace, 'src', package),
+               os.path.join(workspace, 'src', path),
                '-o', os.path.join(workspace, 'docs', package) ],
              ros_env)
 
     # Hack so the buildbot can delete this directory later
     call(['chmod', '-R', '777', os.path.join(workspace, 'docs')])
+
+## @brief Helper function for recursively finding packages
+## @param directory The name of this directory. Also the name of the package if
+##        this directory contains a package.xml
+## @param path The path leading to this directory.
+## @param package_path The dictionary of package:path data to add to
+def search_for_packages(directory, path, package_path):
+    # is this a directory?
+    if not os.path.isdir( os.path.join(path, directory) ):
+        return
+    print('Considering ' + os.path.join(path, directory))
+    # does this directory have a package.xml?
+    if os.path.exists( os.path.join(path, directory, 'package.xml') ):
+        print('... found package')
+        package_path[directory] = os.path.join(path, directory)
+    else:
+        # Search subdirectories for package.xml
+        for f in os.listdir( os.path.join(path, directory) ):
+            search_for_packages(f, os.path.join(path, directory), package_path)
 
 ## @brief Call a command
 ## @param command Should be a list
