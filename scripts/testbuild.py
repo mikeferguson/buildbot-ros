@@ -8,6 +8,7 @@ import sys, os, subprocess, shutil
 GTESTPASS = '[       OK ]'
 GTESTFAIL = '[  FAILED  ]'
 PNOSEFAIL = 'FAIL: '
+PNOSECONFIGFAIL = 'FAILED ('
 
 ## @brief Run the build and test for a repository of catkin packages
 ## @param workspace Directory to do work in (typically bind-mounted,
@@ -97,6 +98,9 @@ def run_build_and_test(workspace, rosdistro):
         if line.find(PNOSEFAIL) > -1:
             name = line.split(' ')[2].rstrip()
             pnose_fail.append(name)
+        # pnose failed to configure? (issue #17)
+        if line.find(PNOSECONFIGFAIL) > -1:
+            pnose_fail.append('python configure')
         # is this our total for python?
         if line.find('Ran ') > -1:
             pnose_total += int(line.split(' ')[1])
