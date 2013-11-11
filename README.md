@@ -166,13 +166,6 @@ at line 10. change 'exceptions' to 'exc':
 
     from sqlalchemy import exc as sa_exceptions
 
-###rosdistro, rosdistro_build_cache crashes
-There is a bug in version 0.2.13 which has been fixed but not yet released
-[(details)](https://github.com/ros-infrastructure/rosdistro/commit/1934252b7dbadca216ad805bda6b87979a5d7fb1)
-
-You can manually apply that patch to the version of rosdistro found in buildbot-env, or install
-rosdistro from source until the patch is released.
-
 ###I need to move my gpg key (also known as 'my server has all the entropy of a dead cow!')
 On the machine with the key
 
