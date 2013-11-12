@@ -77,7 +77,7 @@ class RosDistroOracle:
                             depends.append(rd)
                 self._insert(repo, depends, order)
 
-            self.build_order[dist_name]['jobs'] = order
+            self.build_order[dist_name]['deb_jobs'] = order
 
             self.build_files[dist_name] = dict()
             # TODO: this is a bit hacky, come up with a better way to get 'correct' build
@@ -85,25 +85,49 @@ class RosDistroOracle:
             self.build_files[dist_name]['source'] = get_source_build_files(self.index, dist_name)[0]
             self.build_files[dist_name]['doc'] = get_doc_build_files(self.index, dist_name)[0]
 
+            # build a list of doc jobs, all doc jobs must be released,
+            # but not all released things should need to be documented
+            self.build_order[dist_name]['doc_jobs'] = list()
+            doc = get_doc_file(self.index, dist_name)
+            for repo in order:
+                if repo in doc.repositories.keys():
+                    self.build_order[dist_name]['doc_jobs'].append(repo)
+
     ## @brief Get the order to build debian packages within a single repository
     def getPackageOrder(self, repo_name, dist_name):
         return self.build_order[dist_name][repo_name]
 
     ## @brief Get the order for debian jobs
-    def getJobOrder(self, dist_name):
-        return self.build_order[dist_name]['jobs']
+    def getDebJobOrder(self, dist_name):
+        return self.build_order[dist_name]['deb_jobs']
+
+    ## @brief Get the order for documentation jobs
+    def getDocJobOrder(self, dist_name):
+        return self.build_order[dist_name]['doc_jobs']
 
     ## @brief Get the job to trigger after this one
-    def getTrigger(self, repo_name, dist_name):
-        i = self.build_order[dist_name]['jobs'].index(repo_name)
+    def getDebTrigger(self, repo_name, dist_name):
+        i = self.build_order[dist_name]['deb_jobs'].index(repo_name)
         try:
-            return [self.build_order[dist_name]['jobs'][i+1], ]
+            return [self.build_order[dist_name]['deb_jobs'][i+1], ]
+        except:
+            return None
+
+    ## @brief Get the job to trigger after this one
+    def getDocTrigger(self, repo_name, dist_name):
+        i = self.build_order[dist_name]['doc_jobs'].index(repo_name)
+        try:
+            return [self.build_order[dist_name]['doc_jobs'][i+1], ]
         except:
             return None
 
     ## @brief Get the job to start nightly build with
-    def getNightlyStart(self, dist_name):
-        return self.build_order[dist_name]['jobs'][0]
+    def getNightlyDebStart(self, dist_name):
+        return self.build_order[dist_name]['deb_jobs'][0]
+
+    ## @brief Get the job to start nightly build with
+    def getNightlyDocStart(self, dist_name):
+        return self.build_order[dist_name]['doc_jobs'][0]
 
     ## @brief Get the rosdistro.Index
     def getIndex(self):
@@ -184,7 +208,7 @@ def debbuilders_from_rosdistro(c, oracle, distro, builders):
                                                  builders,
                                                  oracle.getOtherMirror('release', distro, code_name),
                                                  oracle.getKeys('release', distro),
-                                                 oracle.getTrigger(name, distro)))
+                                                 oracle.getDebTrigger(name, distro)))
     return jobs
 
 ## @brief Create testbuilders from source file
@@ -250,5 +274,5 @@ def docbuilders_from_rosdistro(c, oracle, distro, builders):
                                                  builders,
                                                  oracle.getOtherMirror('doc', distro, code_name),
                                                  oracle.getKeys('doc', distro),
-                                                 oracle.getTrigger(name, distro)))
+                                                 oracle.getDocTrigger(name, distro)))
     return jobs
