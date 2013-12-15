@@ -158,6 +158,9 @@ pbuilder/cowbuilder without a password, by adding the following to your /etc/sud
 Note that there is a TAB between buildbot and ALL.
 
 ##Known Issues, Hacks, Tricks and Workarounds
+###ansible setup
+Mike Purvis has created a deployment setup using ansible: https://github.com/mikepurvis/ansible-buildbot-ros/
+
 ###easy_install version of sqlalchemy causes buildbot scripts to fail
 This is an incompatibility between version 0.7.x of sqlalchemy-migrate and 0.8 of sqlalchemy. The
 quick fix is to edit a file in your virtualenv. In
