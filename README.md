@@ -97,7 +97,7 @@ edit buildbot-ros/buildbot.tac and set the line 'umask=None' to 'umask=0022' so 
 can be found by your webserver. You'll also want to edit buildbot-ros/master.cfg to add your own
 project settings (such as which rosdistro file to use), and then start the buildbot:
 
-    buildbot start buildobot-ros
+    buildbot start buildbot-ros
 
 To actually have debbuilders succeed, you'll need to create the APT repository for debs to be
 installed into, as 'buildbot':
