@@ -87,6 +87,7 @@ Create a user 'buildbot', log in as that user, and do the following:
     cd ~
     virtualenv --no-site-packages buildbot-env
     source buildbot-env/bin/activate
+    echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
     easy_install buildbot
     pip install rosdistro
     git clone git@github.com:mikeferguson/buildbot-ros.git
@@ -139,6 +140,7 @@ for the master. Once you have a buildbot user and virtualenv, do the following a
 
     source buildbot-env/bin/activate
     easy_install buildbot-slave
+    echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
     buildslave create-slave rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
 
 As with the master, change umask to be 0022 in the .tac file.
