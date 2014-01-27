@@ -2,7 +2,7 @@ from buildbot.config import BuilderConfig
 from buildbot.process.factory import BuildFactory
 from buildbot.process.properties import Interpolate
 from buildbot.steps.source.git import Git
-from buildbot.steps.shell import ShellCommand, SetProperty
+from buildbot.steps.shell import ShellCommand, SetPropertyFromCommand
 from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
@@ -78,7 +78,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
         )
         # Stamp the changelog, in a similar fashion to the ROS buildfarm
         f.addStep(
-            SetProperty(
+            SetPropertyFromCommand(
                 command="date +%Y%m%d-%H%M-%z", property="datestamp",
                 name = package+'-getstamp',
                 hideStepIf = success
