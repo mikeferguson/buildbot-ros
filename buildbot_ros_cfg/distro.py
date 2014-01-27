@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 from rosdistro import *
-from rosdistro import _get_dist_file_data
 from rosdistro.dependency_walker import *
 from rosdistro.release import *
 
@@ -19,32 +18,24 @@ class RosDistroOracle:
     def __init__(self, index, distro_names):
         self.index = index
         self.distro_names = distro_names
-
-        self.releases = {}
-        for dist_name in distro_names:
-            rel_file_data = _get_dist_file_data(index, dist_name, 'release')
-            try:
-                cache = get_release_cache(index, dist_name)
-            except Exception:
-                # create empty cache instance
-                cache = ReleaseCache(dist_name, rel_file_data=rel_file_data)
-            # update
-            cache.update_distribution(rel_file_data)
-            self.releases[dist_name] = get_cached_release(index, dist_name, cache = cache, allow_lazy_load = True)
+        self.distributions = {}
 
         self.build_order = {}
         self.build_files = {}
+
         for dist_name in distro_names:
+            self.distributions[dist_name] = get_cached_distribution(index, dist_name, allow_lazy_load = True)
+            dist = self.distributions[dist_name]
+
             self.build_order[dist_name] = dict()
 
             pkg_depends = dict()
-            release = self.releases[dist_name]
-            packages = release.packages.keys()
-            walker = DependencyWalker(release)
+            packages = dist.release_packages.keys()
+            walker = DependencyWalker(dist)
 
             # compute dependency of each package
             for pkg in packages:
-                if release.repositories[release.packages[pkg].repository_name].version == None:
+                if dist.repositories[dist.release_packages[pkg].repository_name].release_repository.version == None:
                     continue
                 pkg_depends[pkg] = list()
                 depends = walker.get_depends(pkg, 'buildtool')
@@ -55,24 +46,28 @@ class RosDistroOracle:
                         pkg_depends[pkg].append(dp)
 
             # this gives order for packages within a single repo of the debbuild
-            for repo in release.repositories.keys():
-                if release.repositories[repo].version == None:
+            for repo in dist.repositories.keys():
+                if dist.repositories[repo].release_repository == None:
+                    continue
+                if dist.repositories[repo].release_repository.version == None:
                     continue
                 order = list()
-                for pkg in release.repositories[repo].package_names:
+                for pkg in dist.repositories[repo].release_repository.package_names:
                     self._insert(pkg, pkg_depends[pkg], order)
                 self.build_order[dist_name][repo] = order
 
             # this gives the order of the debbuilds
             order = list()
-            for repo in release.repositories.keys():
-                if release.repositories[repo].version == None:
+            for repo in dist.repositories.keys():
+                if dist.repositories[repo].release_repository == None:
+                    continue
+                if dist.repositories[repo].release_repository.version == None:
                     continue
 
                 depends = list()
-                for pkg in release.repositories[repo].package_names:
+                for pkg in dist.repositories[repo].release_repository.package_names:
                     for dep in pkg_depends[pkg]:
-                        rd = release.packages[dep].repository_name
+                        rd = dist.release_packages[dep].repository_name
                         if rd not in depends:
                             depends.append(rd)
                 self._insert(repo, depends, order)
