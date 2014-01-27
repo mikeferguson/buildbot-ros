@@ -54,3 +54,20 @@ to _ros-distro-package-name_. This can cause interesting error messages when
 packages that are not ROS packages are not in your rosdep, but it solves the
 dependency calculation for packages which are not in the public rosdistro.
 
+###Using a private rosdistro
+In addition to private repositories, buildbot-ros can be used with an entirely
+private rosdistro. In the default master.cfg, the index is typically taken
+from a raw.github address by calling:
+
+        get_index('https://raw.github.com/user/repo/index.yaml')
+
+This will not work with a git+ssh address, however, it is easy to switch to
+a private index:
+
+        from buildbot_ros_cfg.distro_private import get_private_index
+        get_private_index('git@github.com:user/repo.git')
+
+Note here that we actually give the repository address, not the file. The
+private indexer will actually check out the repository to /tmp and then use
+a 'file://' access method to get the index and all other rosdistro files.
+
