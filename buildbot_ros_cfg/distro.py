@@ -138,6 +138,12 @@ class RosDistroOracle:
     ## @param distro The Ubuntu distro, 'precise'
     def getOtherMirror(self, build, rosdistro, distro):
         build_file = self.build_files[rosdistro][build]
+        if "_config" not in build_file._targets:
+            print("No _config in %s build file -- this is probably not right." % build)
+            return ""
+        if "apt_mirrors" not in build_file.targets["_config"]:
+            print("No apt_mirrors in %s _config -- this is probably not right." % build)
+            return ""
         #TODO: source, doc should be updated to allow this:
         #mirrors = build_file.get_target_configuration()['apt_mirrors']
         mirrors = build_file._targets['_config']['apt_mirrors']
@@ -149,6 +155,12 @@ class RosDistroOracle:
     ## @param distro The Ubuntu distro, 'precise'
     def getBindMirrors(self, build, rosdistro, distro):
         build_file = self.build_files[rosdistro][build]
+        if "_config" not in build_file._targets:
+            print("No _config in %s build file -- this is probably not right." % build)
+            return ""
+        if "apt_mirrors" not in build_file.targets["_config"]:
+            print("No apt_mirrors in %s _config -- this is probably not right." % build)
+            return ""
         #TODO: source, doc should be updated to allow this:
         #mirrors = build_file.get_target_configuration()['apt_mirrors']
         mirrors = build_file._targets['_config']['apt_mirrors']
@@ -158,6 +170,12 @@ class RosDistroOracle:
     ## @param build The type of the build, 'release', 'source', or 'doc'
     def getKeys(self, build, rosdistro):
         build_file = self.build_files[rosdistro][build]
+        if "_config" not in build_file._targets:
+            print("No _config in %s build file -- this is probably not right." % build)
+            return []
+        if "apt_keys" not in build_file.targets["_config"]:
+            print("WARNING: No apt_keys in %s _config." % build)
+            return []
         #TODO: source, doc should be updated to allow this:
         #return build_file.get_target_configuration()['apt_keys']
         return build_file._targets['_config']['apt_keys']
