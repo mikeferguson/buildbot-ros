@@ -6,6 +6,7 @@ from buildbot.steps.shell import ShellCommand, SetPropertyFromCommand
 from buildbot.steps.transfer import FileUpload, FileDownload
 from buildbot.steps.trigger import Trigger
 from buildbot.steps.master import MasterShellCommand
+from buildbot.steps.slave import RemoveDirectory
 from buildbot.schedulers import triggerable
 
 from helpers import success
@@ -27,6 +28,14 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
     gbp_args = ['-uc', '-us', '--git-ignore-branch', '--git-ignore-new',
                 '--git-verbose', '--git-dist='+distro, '--git-arch='+arch]
     f = BuildFactory()
+    # Remove the build directory.
+    f.addStep(
+        RemoveDirectory(
+            name = job_name+'-clean',
+            dir = Interpolate('%(prop:workdir)s'),
+            hideStepIf = success,
+        )
+    )
     # Check out the repository master branch, since releases are tagged and not branched
     f.addStep(
         Git(
