@@ -9,6 +9,7 @@ GTESTPASS = '[       OK ]'
 GTESTFAIL = '[  FAILED  ]'
 PNOSEFAIL = 'FAIL: '
 PNOSECONFIGFAIL = 'FAILED ('
+PNOSEEXCEPTION = 'Traceback ('
 
 ## @brief Run the build and test for a repository of catkin packages
 ## @param workspace Directory to do work in (typically bind-mounted,
@@ -104,6 +105,9 @@ def run_build_and_test(workspace, rosdistro):
         # pnose failed to configure? (issue #17)
         if line.find(PNOSECONFIGFAIL) > -1:
             pnose_fail.append('python configure')
+        # pnose exception?
+        if line.find(PNOSEEXCEPTION) > -1:
+            pnose_fail.append('python exception')
         # is this our total for python?
         if line.find('Ran ') > -1:
             pnose_total += int(line.split(' ')[1])
