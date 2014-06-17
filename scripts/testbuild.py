@@ -55,7 +55,10 @@ def run_build_and_test(workspace, rosdistro):
 
     print('catkin_init_workspace')
     call(['catkin_init_workspace', '../src'], ros_env)
-    call(['cmake', '../src', '-DCATKIN_TEST_RESULTS_DIR=../test'], ros_env)
+    # Workaround for nosetest 1.3.1 issue with non-absolute paths on Trusty
+    #  (https://github.com/nose-devs/nose/issues/779)
+    test_dir = os.path.realpath('../test')
+    call(['cmake', '../src', '-DCATKIN_TEST_RESULTS_DIR='+test_dir], ros_env)
     
     print('make')
     call(['make'], ros_env)
