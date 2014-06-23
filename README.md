@@ -181,4 +181,4 @@ http://trac.buildbot.net/ticket/2045
 Mike Purvis has created a deployment setup using ansible: https://github.com/mikepurvis/ansible-buildbot-ros/
 
 ###private repositories and dependencies
-See https://github.com/mikeferguson/buildbot-ros/blob/master/docs/private_repositories.md
+See https://github.com/mikeferguson/buildbot-ros/blob/master/documentation/private_repositories.md
