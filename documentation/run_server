@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# This is the entrypoint for the example docker file
+
+if [ ! -e "/var/www/building/conf/distributions" ]
+then
+  # setup the apt repo for output
+  /root/buildbot-ros/scripts/aptrepo-create.bash YourOrgName "amd64 i386" trusty
+fi
+
+. /root/buildbot-env/bin/activate
+buildbot start /root/buildbot-ros
+buildslave start /root/rosbuilder1
+/usr/sbin/sshd -D
