@@ -40,3 +40,15 @@ using Github and private repositories or ssh access, you need an ssh
 key that has already been added to Github. The id_rsa file should
 be in the same 'buildbot-ros' folder with the Dockerfile, and the
 example dockerfile expects it to be named 'buildbot_id_rsa'.
+
+## Other issues
+
+You will need to update reprepro-include.bash to use /root/buildbot-ros as the
+BUILD_DIR
+
+The aptrepo-create.bash should be modified to have:
+
+    echo "SignWith: ABCD1234" >> distributions
+
+Where the sign with comment is. Really, this script should be rewritten
+in python so it can supports better args.
