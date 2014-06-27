@@ -72,7 +72,8 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildsource',
-                command = ['git-buildpackage', '-S'] + gbp_args,
+                command = ['git-buildpackage', '-S', '--git-upstream=TAG',
+                           Interpolate('--git-upstream-tag=release/'+rosdistro+'/'+package+'/%(prop:release_version)s')] + gbp_args,
                 descriptionDone = ['sourcedeb', package]
             )
         )
@@ -118,8 +119,9 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildbinary',
-                command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
-                           Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
+                command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC', '--git-upstream-tree=TAG',
+                           Interpolate('--git-upstream-tag=debian/'+debian_pkg+'_%(prop:release_version)s_'+distro),
+                           Interpolate('--git-export-dir=%(prop:workdir)s'),] + gbp_args,
                 env = {'DIST': distro,
                        'GIT_PBUILDER_OPTIONS': Interpolate('--hookdir %(prop:workdir)s/hooks --override-config'),
                        'OTHERMIRROR': othermirror },
