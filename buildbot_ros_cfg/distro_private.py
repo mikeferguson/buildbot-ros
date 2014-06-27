@@ -20,8 +20,11 @@ def call(command):
         return
 
 ## @brief Function used to get a private index, for which we need to do git+ssh checkout
-def get_private_index(url):
+def get_private_index(url, branch = None):
     print('Getting private rosdistro from: %s' % url)
     call(['rm', '-rf', '/tmp/rosdistro'])
-    call(['git', 'clone', url, '/tmp/rosdistro'])
+    if branch:
+        call(['git', 'clone', '-b', branch, url, '/tmp/rosdistro'])
+    else:
+        call(['git', 'clone', url, '/tmp/rosdistro'])
     return get_index( 'file:///tmp/rosdistro/index.yaml' )
