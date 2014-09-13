@@ -22,14 +22,14 @@ RUN . /root/buildbot-env/bin/activate
 RUN easy_install buildbot
 RUN easy_install buildbot-slave
 RUN pip install rosdistro
-RUN git clone -b indigo-devel git@github.com:unboundedrobotics/buildbot-ros.git /root/buildbot-ros
+RUN git clone -b trusty git@github.com:mikeferguson/buildbot-ros.git /root/buildbot-ros
 RUN buildbot create-master /root/buildbot-ros
 RUN buildslave create-slave /root/rosbuilder1 localhost:9989 rosbuilder1 mebuildsalotaros
 
 # Fix the file creation defaults
 RUN cp /root/buildbot-ros/buildbot.tac /root/buildbot-ros/buildbot.tac.bk
 RUN sed 's/umask = None/umask = 0022/' /root/buildbot-ros/buildbot.tac.bk > /root/buildbot-ros/buildbot.tac
-RUN cp /root/piggy1/buildbot.tac /root/piggy1/buildbot.tac.bk
+RUN cp /root/rosbuilder1/buildbot.tac /root/rosbuilder1/buildbot.tac.bk
 RUN sed 's/umask = None/umask = 0022/' /root/rosbuilder1/buildbot.tac.bk > /root/rosbuilder1/buildbot.tac
 
 # magic hack to fix openssh on trusty
