@@ -182,8 +182,5 @@ This will prevent you from loading the entire ROS farm as is, unless different a
 are restricted to different buildbots. There is a monkey-patch available here:
 http://trac.buildbot.net/ticket/2045
 
-###ansible setup
-Mike Purvis has created a deployment setup using ansible: https://github.com/mikepurvis/ansible-buildbot-ros/
-
 ###private repositories and dependencies
 See https://github.com/mikeferguson/buildbot-ros/blob/master/documentation/private_repositories.md
