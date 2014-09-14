@@ -1,8 +1,13 @@
-##Buildbot-ROS
+#Buildbot-ROS
 This is a project for building ROS components using [Buildbot](http://buildbot.net/). This is not
 aimed to be a replacement for the ROS buildfarm, but rather a (hopefully) easier to setup system
 for developers wishing to build their own packages, run continuous integration testing, and build
 docs.
+
+##Release Notes
+
+ * 0.2.0 (forthcoming) - should support Trusty, add github pull request builders
+ * 0.1.0 - first tagged release, does not support Trusty.
 
 ##Design Overview
 Buildbot uses a single master, and possibly multiple machines building. At present, the setup
