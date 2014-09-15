@@ -4,6 +4,8 @@ aimed to be a replacement for the ROS buildfarm, but rather a (hopefully) easier
 for developers wishing to build their own packages, run continuous integration testing, and build
 docs.
 
+Please see the mailing list for discussions about setup, usage, and new features: https://groups.google.com/forum/#!forum/buildbot-ros-sig
+
 ##Release Notes
 
  * 0.2.0 (forthcoming) - should support Trusty, add github pull request builders
