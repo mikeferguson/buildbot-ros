@@ -141,7 +141,7 @@ class RosDistroOracle:
         if "_config" not in build_file._targets:
             print("No _config in %s build file -- this is probably not right." % build)
             return ""
-        if "apt_mirrors" not in build_file.targets["_config"]:
+        if "apt_mirrors" not in build_file._targets["_config"]:
             print("No apt_mirrors in %s _config -- this is probably not right." % build)
             return ""
         #TODO: source, doc should be updated to allow this:
@@ -158,7 +158,7 @@ class RosDistroOracle:
         if "_config" not in build_file._targets:
             print("No _config in %s build file -- this is probably not right." % build)
             return ""
-        if "apt_mirrors" not in build_file.targets["_config"]:
+        if "apt_mirrors" not in build_file._targets["_config"]:
             print("No apt_mirrors in %s _config -- this is probably not right." % build)
             return ""
         #TODO: source, doc should be updated to allow this:
@@ -173,7 +173,7 @@ class RosDistroOracle:
         if "_config" not in build_file._targets:
             print("No _config in %s build file -- this is probably not right." % build)
             return []
-        if "apt_keys" not in build_file.targets["_config"]:
+        if "apt_keys" not in build_file._targets["_config"]:
             print("WARNING: No apt_keys in %s _config." % build)
             return []
         #TODO: source, doc should be updated to allow this:
