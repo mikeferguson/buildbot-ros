@@ -72,7 +72,7 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildsource',
-                command = ['git-buildpackage', '-S', '--git-upstream=TAG',
+                command = ['git-buildpackage', '-S', '--git-upstream-tree=TAG',
                            Interpolate('--git-upstream-tag=release/'+rosdistro+'/'+package+'/%(prop:release_version)s')] + gbp_args,
                 descriptionDone = ['sourcedeb', package]
             )
