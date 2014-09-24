@@ -46,6 +46,19 @@ The private.yaml will look something like:
 
 You can then _rosdep update_ and run _bloom-release_ as usual.
 
+If you run into an error about a missing dependency for the 'heisenbug'
+distribution when running bloom-release, you will need to add a second line
+for each of your packages, so that it looks like:
+
+        my_private_package1:
+          ubuntu: ros-hydro-my-private-package1
+          fedora: ros-hydro-my-private-package1
+        my_private_package2:
+          ubuntu: ros-hydro-my-private-package2
+          fedora: ros-hydro-my-private-package2
+
+This is because of https://github.com/ros-infrastructure/bloom/issues/296
+
 ###Solution for build time dependencies
 When building and testing the source repositories, there is a horrible hack
 in buildbot-ros, which assumes that any unresolved dependencies are in fact
