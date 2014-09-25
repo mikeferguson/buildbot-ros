@@ -2,8 +2,10 @@
 
 # This script will add a deb to the 'building' APT repository, using reprepro
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 export REPO_DIR="/var/www/building/ubuntu"
-export BUILD_DIR="/home/buildbot/buildbot-ros"
+export BUILD_DIR=`readlink -f ${SCRIPT_DIR}/..`
 
 if [[ ${#} -lt 4 ]]; then
     echo "Usage: ${0} <pkg_name> <name.deb> <distro> <arch>"
