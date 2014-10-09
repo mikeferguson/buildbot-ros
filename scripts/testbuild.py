@@ -232,12 +232,19 @@ class BuildException(Exception):
         cleanup()
         self.msg = msg
 
+    def __str__(self):
+        return 'BuildException: %s' % self.msg
+
 ## @brief Do some cleanup
 def cleanup():
-    if os.path.exists(workspace+'/build'):
-        shutil.rmtree(workspace+'/build')
-    if os.path.exists(workspace+'/test'):
-        shutil.rmtree(workspace+'/test')
+    try:
+        if os.path.exists(workspace+'/build'):
+            shutil.rmtree(workspace+'/build')
+        if os.path.exists(workspace+'/test'):
+            shutil.rmtree(workspace+'/test')
+    except:
+        # Workspace variable probably didn't exist; do nothing
+        pass
 
 if __name__=="__main__":
     if len(sys.argv) < 3:
