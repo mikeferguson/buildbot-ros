@@ -89,7 +89,9 @@ Install prerequisites:
 
     sudo apt-get install python-virtualenv python-dev
 
-Create a user 'buildbot', log in as that user, and do the following:
+Create a user 'buildbot'. Make sure you don't leave the Name field blank - if you do you'll end up
+with incorrect syntax in the deb changelogs, because git-dch uses the user's actual name in the changelog.
+Log in as the buildbot user, and do the following:
 
     cd ~
     virtualenv --no-site-packages buildbot-env
