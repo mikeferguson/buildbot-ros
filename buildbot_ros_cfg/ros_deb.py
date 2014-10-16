@@ -67,12 +67,23 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 hideStepIf = success
             )
         )
+        # Download script for building the source deb
+        f.addStep(
+            FileDownload(
+                name = job_name+'-grab-build-source-deb-script',
+                mastersrc = 'scripts/build_source_deb.py',
+                slavedest = Interpolate('%(prop:workdir)s/build_source_deb.py'),
+                mode = 0755,
+                hideStepIf = success
+            )
+        )
         # Build the source deb
         f.addStep(
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildsource',
-                command = ['git-buildpackage', '-S'] + gbp_args,
+                command= [Interpolate('%(prop:workdir)s/build_source_deb.py'),
+                    rosdistro, package, Interpolate('%(prop:release_version)s')] + gbp_args,
                 descriptionDone = ['sourcedeb', package]
             )
         )
@@ -113,13 +124,23 @@ def ros_debbuild(c, job_name, packages, url, distro, arch, rosdistro, version, m
                 mode = 0777 # make this executable for the cowbuilder
             )
         )
+        # Download script for building the binary deb
+        f.addStep(
+            FileDownload(
+                name = job_name+'-grab-build-binary-deb-script',
+                mastersrc = 'scripts/build_binary_deb.py',
+                slavedest = Interpolate('%(prop:workdir)s/build_binary_deb.py'),
+                mode = 0755,
+                hideStepIf = success
+            )
+        )
         # build the binary from the git working copy
         f.addStep(
             ShellCommand(
                 haltOnFailure = True,
                 name = package+'-buildbinary',
-                command = ['git-buildpackage', '--git-pbuilder', '--git-export=WC',
-                           Interpolate('--git-export-dir=%(prop:workdir)s')] + gbp_args,
+                command = [Interpolate('%(prop:workdir)s/build_binary_deb.py'), debian_pkg,
+                    Interpolate('%(prop:release_version)s'), distro, Interpolate('%(prop:workdir)s')] + gbp_args,
                 env = {'DIST': distro,
                        'GIT_PBUILDER_OPTIONS': Interpolate('--hookdir %(prop:workdir)s/hooks --override-config'),
                        'OTHERMIRROR': othermirror },

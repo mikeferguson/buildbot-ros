@@ -100,7 +100,9 @@ def make_cowbuilder(distro, arch, keys):
                #'--othermirror', defaultmirrors(distro)]
     print('Executing command "%s"' % ' '.join(command))
     cowbuilder = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = cowbuilder.communicate(input="""echo "Installing wget"
+    output = cowbuilder.communicate(input="""echo "Installing python"
+apt-get install python -y
+echo "Installing wget"
 apt-get install wget -y
 """+getKeyCommands(keys)+"""echo "exiting"
 exit
