@@ -134,9 +134,9 @@ You'll likely want to export the public key:
     gpg --output /var/www/public.key --armor --export AAAABBBB
 
 When everything is working, buildbot can be added as a startup, by adding to the buildbot user's
-crontab. Open up the crontab for the buildbot user by typing `crontab -e`, then you can use this line to restart the buildbot instance every day at 4am for example.
+crontab. Open up the crontab for the buildbot user by typing `crontab -e`, then you can use this line to restart the buildbot instance every day at 11pm for example.
 
-    0 4 * * * cd /home/buildbot && buildbot restart buildbot-ros
+    0 23 * * * cd /home/buildbot && buildbot restart buildbot-ros
 
 
 ##Setup for Buildbot Slave
