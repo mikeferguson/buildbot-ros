@@ -17,7 +17,7 @@ else
     export ARCHS=${2}
 fi
 if [[ ${#} -lt 3 ]]; then
-    export DISTROS=(precise)
+    export DISTROS=(trusty)
 else
     export DISTROS=${@:3}
 fi
@@ -52,6 +52,8 @@ do
     #TODO SignWith???
     echo "" >> distributions
 done
+
+reprepro -V -b $REPO_DIR export
 
 # Notify
 echo ""
