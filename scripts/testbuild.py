@@ -120,7 +120,15 @@ def run_build_and_test(workspace, rosdistro):
             rostest_pass += int(line[line.find(ROSTESTPASS)+len(ROSTESTPASS):].split(' ')[0])
         # Is this a rostest fail?
         if line.find(ROSTESTFAIL) > -1:
-            rostest_fail += int(line[line.find(ROSTESTFAIL)+len(ROSTESTFAIL):].split(' ')[0])
+            l = line[line.find(ROSTESTFAIL)+len(ROSTESTFAIL):]
+            while len(l) > 0:
+                try:
+                    rostest_fail += int(l.split(' ')[0])
+                except ValueError:
+                    # Might have formatting attached, remove 1 character at time
+                    l = l[0:-1]
+                break
+
 
     # determine if we failed
     passed = len(gtest_pass) + pnose_total - len(pnose_fail) + rostest_pass
