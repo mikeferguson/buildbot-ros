@@ -229,8 +229,11 @@ def debbuilders_from_rosdistro(c, oracle, distro, builders):
 ## @param oracle The rosdistro oracle
 ## @param distro The distro to configure for ('groovy', 'hydro', etc)
 ## @param builders list of builders that this job can run on
+## @param tokens A dictionary of repo -> oauth_tokens, used for PR builders
 ## @returns A list of debbuilder names created
-def testbuilders_from_rosdistro(c, oracle, distro, builders):
+def testbuilders_from_rosdistro(c, oracle, distro, builders, tokens = None):
+    tokens = tokens or dict()
+
     source = get_source_file(oracle.getIndex(), distro)
     build_files = get_source_build_files(oracle.getIndex(), distro)
     jobs = list()
@@ -240,6 +243,7 @@ def testbuilders_from_rosdistro(c, oracle, distro, builders):
             print('Cannot configure ros_debbuild for %s, as it is not a git repository' % name)
             continue
         for build_file in build_files:
+            added_pr_builder = False
             for os in build_file.get_target_os_names():
                 for code_name in build_file.get_target_os_code_names(os):
                     for arch in build_file.get_target_arches(os, code_name):
@@ -255,6 +259,25 @@ def testbuilders_from_rosdistro(c, oracle, distro, builders):
                                                   oracle.getOtherMirror('source', distro, code_name),
                                                   oracle.getKeys('source', distro),
                                                   ))
+                        if not added_pr_builder:
+                            try:
+                                token = tokens[name]
+                                print('Configuring Pull Request builder for: %s_%s_%s' % (name, code_name, arch))
+                                jobs.append(ros_testbuild(c,
+                                                          name,
+                                                          source.repositories[name].url,
+                                                          source.repositories[name].version,  # branch
+                                                          code_name,
+                                                          arch,
+                                                          distro,
+                                                          builders,
+                                                          oracle.getOtherMirror('source', distro, code_name),
+                                                          oracle.getKeys('source', distro),
+                                                          token=token
+                                                          ))
+                            except KeyError:
+                                print("Not adding Pull Request builder for %s" % name)
+                            added_pr_builder = True
     return jobs
 
 ## @brief Create docbuilders from doc file
