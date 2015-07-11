@@ -97,10 +97,15 @@ Log in as the buildbot user, and do the following:
     virtualenv --no-site-packages buildbot-env
     source buildbot-env/bin/activate
     echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
-    easy_install buildbot
+    easy_install buildbot=0.8.12 requests
     pip install rosdistro
     git clone git@github.com:mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
+
+If using the Pull Request builder, you will also need to:
+
+    sudo apt-get install libffi-dev libssl-dev
+    easy_install txgithub
 
 At this point, you have a master, with the default configuration. You will almost certainly want to
 edit buildbot-ros/buildbot.tac and set the line 'umask=None' to 'umask=0022' so that uploaded debs
