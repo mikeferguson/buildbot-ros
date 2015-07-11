@@ -24,7 +24,7 @@ There are several 'builder' types available:
    repository, builds, and runs tests using catkin. Triggered by a commit to the watched branch
    of the repository. In the future, this could also be triggered by a post commit hook giving even
    faster response time to let you know that you broke the build or tests (buildbot already has nice
-   GitHub post-commit hooks available).
+   GitHub post-commit hooks available). Test builds can also be done on pull requests.
  * Docbuild - are built and uploaded to the master. Currently triggered nightly and generating only
    the doxygen/epydoc/sphinx documentation (part of the docs you find on ros.org). Uses rosdoc_lite.
    Presently, I do a soft link from my Apache server install to the /home/buildbot/buildbot-ros/docs
@@ -144,6 +144,18 @@ crontab. Open up the crontab for the buildbot user by typing `crontab -e`, then 
     0 23 * * * cd /home/buildbot && buildbot restart buildbot-ros
     55 22 * * * cd /var/www/html/rosdistro && rosdistro_build_cache /path/to/index.yaml
 
+###Setup for Pull Requests
+
+To enable pull requests, the oauth_tokens must be configured. To create an oauth token,
+go to settings under your github account, go to "Personal access tokens" and generate
+a new token for the buildbot, then update the oauth_tokens in master.cfg:
+
+    # Pull request builder tokens (should not be stored in rosdistro)
+    # This is a mapping of "repo" -> "token"
+    # If a repo has no entry, then pull request builder will not be started
+    oauth_tokens = dict()
+    oauth_tokens["first_repo"] = "1251511615134513413541351acea1ave"
+    oauth_tokens["second_repo"] = "1251511615134513413541351acea1ave"
 
 ##Setup for Buildbot Slave
 We need a few things installed (remember, buildbot is not in the sudoers, so you should do this
