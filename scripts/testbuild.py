@@ -12,6 +12,7 @@ PNOSECONFIGFAIL = 'FAILED ('
 PNOSEEXCEPTION = 'Traceback ('
 ROSTESTPASS = ' * TESTS: '
 ROSTESTFAIL = ' * FAILURES: '
+ROSTESTERROR = ' * ERRORS: '
 
 ## @brief Run the build and test for a repository of catkin packages
 ## @param workspace Directory to do work in (typically bind-mounted,
@@ -92,6 +93,7 @@ def run_build_and_test(workspace, rosdistro):
     pnose_total = 0 # can only count these?
     rostest_pass = 0
     rostest_fail = 0
+    rostest_err = 0
 
     for line in test_results.split('\n'):
         # Is this a gtest pass?
@@ -124,15 +126,25 @@ def run_build_and_test(workspace, rosdistro):
             while len(l) > 0:
                 try:
                     rostest_fail += int(l.split(' ')[0])
+                    break
                 except ValueError:
                     # Might have formatting attached, remove 1 character at time
                     l = l[0:-1]
-                break
+        # Is this a rostest error?
+        if line.find(ROSTESTERROR) > -1:
+            l = line[line.find(ROSTESTERROR)+len(ROSTESTERROR):]
+            while len(l) > 0:
+                try:
+                    rostest_err += int(l.split(' ')[0])
+                    break
+                except ValueError:
+                    # Might have formatting attached, remove 1 character at time
+                    l = l[0:-1]
 
 
     # determine if we failed
     passed = len(gtest_pass) + pnose_total - len(pnose_fail) + rostest_pass
-    failed = len(gtest_fail) + len(pnose_fail) + rostest_fail
+    failed = len(gtest_fail) + len(pnose_fail) + rostest_fail + rostest_err
     if failed > 0:
         f.write('*'*70 + '\n')
         f.write('Failed '+str(failed)+' of '+str(passed+failed)+' tests.\n')
