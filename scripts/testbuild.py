@@ -47,6 +47,7 @@ def run_build_and_test(workspace, rosdistro):
     print('Installing: %s' % ', '.join(build_depends))
     rosdep = RosDepResolver(rosdistro)
     apt_get_install(rosdep.to_aptlist(build_depends))
+    pip_install(rosdep.to_piplist(build_depends))
 
     # Get environment
     ros_env = get_ros_env('/opt/ros/%s/setup.bash' % rosdistro)
@@ -78,6 +79,7 @@ def run_build_and_test(workspace, rosdistro):
                 run_depends.append(d.name)
     print('Installing: %s' % ', '.join(run_depends))
     apt_get_install(rosdep.to_aptlist(run_depends))
+    pip_install(rosdep.to_piplist(run_depends))
 
     # Run the tests
     print('make run_tests')
@@ -215,6 +217,19 @@ def apt_get_install(pkgs, sudo=False):
     else:
         print('Not installing anything from apt right now.')
 
+## @brief install pip dependencies
+def pip_install(pkgs, sudo=False):
+    # Make sure we have pip
+    apt_get_install(['python-pip'], sudo=sudo)
+    cmd = ["pip", "install"]
+    if sudo:
+        cmd = ["sudo", ] + cmd
+    if len(pkgs) > 0:
+        print("Falling " + " ".join(cmd+pkgs))
+        call(cmd + pkgs)
+    else:
+        print('Not installing anything from pip right now.')
+
 ## @brief from jenkins-scripts/rosdep.py
 class RosDepResolver:
     def __init__(self, rosdistro):
@@ -252,9 +267,20 @@ class RosDepResolver:
     def to_aptlist(self, ros_entries):
         res = []
         for r in ros_entries:
+            if r.endswith("-pip"):
+                continue
             for a in self.to_apt(r):
                 if not a in res:
                     res.append(a)
+        return res
+
+    def to_piplist(self, ros_entries):
+        res = []
+        for r in ros_entries:
+            if r.endswith("-pip"):
+                for a in self.r2a[r]:
+                    if not a in res:
+                        res.append(a)
         return res
 
 class BuildException(Exception):
