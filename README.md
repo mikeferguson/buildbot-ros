@@ -97,7 +97,7 @@ Log in as the buildbot user, and do the following:
     virtualenv --no-site-packages buildbot-env
     source buildbot-env/bin/activate
     echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
-    easy_install buildbot=0.8.12 requests
+    easy_install buildbot==0.8.12 requests
     pip install rosdistro
     git clone git@github.com:mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
