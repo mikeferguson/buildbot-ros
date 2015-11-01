@@ -24,7 +24,7 @@ def get_private_index(url, branch = None):
     print('Getting private rosdistro from: %s' % url)
     call(['rm', '-rf', '/tmp/rosdistro'])
     if branch:
-        call(['git', 'clone', '-b', branch, url, '/tmp/rosdistro'])
+        call(['git', 'clone', '--single-branch', '-b', branch, url, '/tmp/rosdistro'])
     else:
-        call(['git', 'clone', url, '/tmp/rosdistro'])
+        call(['git', 'clone', '--single-branch', url, '/tmp/rosdistro'])
     return get_index( 'file:///tmp/rosdistro/index.yaml' )
