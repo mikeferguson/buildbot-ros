@@ -177,7 +177,11 @@ def call(command, envir=None, verbose=True, return_output=False):
         if helper.returncode is not None or not output:
             break
         if verbose:
-            sys.stdout.write(output)
+            try:
+                sys.stdout.write(output)
+            except UnicodeEncodeError:
+                output = "lost some output, unable to encode in utf-8"
+                sys.stdout.write(output)
         if return_output:
             res += output
 
