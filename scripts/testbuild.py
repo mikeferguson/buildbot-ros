@@ -302,6 +302,8 @@ def cleanup():
             shutil.rmtree(workspace+'/build')
         if os.path.exists(workspace+'/test'):
             shutil.rmtree(workspace+'/test')
+        if os.path.exists(workspace+'/src'):
+            shutil.rmtree(workspace+'/src')
     except:
         # Workspace variable probably didn't exist; do nothing
         pass
@@ -316,4 +318,5 @@ if __name__=="__main__":
     try:
         run_build_and_test(sys.argv[1], sys.argv[2])
     except Exception as e:
+        cleanup()
         raise BuildException(str(e))
