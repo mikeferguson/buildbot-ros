@@ -28,6 +28,7 @@ There are several 'builder' types available:
    GitHub post-commit hooks available). Test builds can also be done on pull requests.
  * Docbuild - are built and uploaded to the master. Currently triggered nightly and generating only
    the doxygen/epydoc/sphinx documentation (part of the docs you find on ros.org). Uses rosdoc_lite.
+   Documentation builds can only be run on released repositories.
    Presently, I do a soft link from my Apache server install to the /home/buildbot/buildbot-ros/docs
    directory, but in the future, a more elegant solution to this should be implemented.
 
