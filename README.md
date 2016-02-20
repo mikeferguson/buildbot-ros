@@ -8,8 +8,9 @@ Please see the mailing list for discussions about setup, usage, and new features
 
 ##Release Notes
 
- * 0.2.0 (forthcoming) - should support Trusty, add github pull request builders
- * 0.1.0 - first tagged release, does not support Trusty.
+ * 0.3.0 (forthcoming) - will support REP-143
+ * 0.2.0 (02/20/2016) - supports Trusty, adds github pull request builders
+ * 0.1.0 (09/13/2014) - first tagged release, does not support Trusty.
 
 ##Design Overview
 Buildbot uses a single master, and possibly multiple machines building. At present, the setup
