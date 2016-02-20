@@ -225,7 +225,7 @@ def pip_install(pkgs, sudo=False):
     if sudo:
         cmd = ["sudo", ] + cmd
     if len(pkgs) > 0:
-        print("Falling " + " ".join(cmd+pkgs))
+        print("Calling " + " ".join(cmd+pkgs))
         call(cmd + pkgs)
     else:
         print('Not installing anything from pip right now.')
