@@ -83,6 +83,7 @@ def run_build_and_test(workspace, rosdistro):
 
     # Run the tests
     print('make run_tests')
+    ros_env = get_ros_env('./devel/setup.bash')
     test_results = call(['make', 'run_tests'], ros_env, return_output = True)
 
     # Output test results to a file
