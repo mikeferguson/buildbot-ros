@@ -122,7 +122,7 @@ installed into, as 'buildbot':
     cd buildbot-ros/scripts
     ./aptrepo-create.bash YourOrganizationName
 
-By default, this script sets up a repository for amd64 and i386 on precise only. You can fully
+By default, this script sets up a repository for amd64 and i386 on trusty only. You can fully
 specify what you want though:
 
     ./aptrepo-create.bash YourOrganizationName "amd64 i386 armel" precise oneiric hardy yeahright
