@@ -173,6 +173,11 @@ for the master. Once you have a buildbot user and virtualenv, do the following a
     echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
     buildslave create-slave rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
 
+If you are on a diffent machine then you will need to clone the buildbot-ros repo on it as well.
+Again as the buildbot user:
+
+    git clone git@github.com:mikeferguson/buildbot-ros.git
+
 As with the master, change umask to be 0022 in the .tac file.
 It is probably a good idea to change the password (mebuildslotsaros), in both this command and the
 master/master.cfg. You can also define additional slaves in the master/master.cfg file, currently
