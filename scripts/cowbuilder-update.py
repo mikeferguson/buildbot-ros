@@ -61,9 +61,14 @@ def release_lock(distro, arch):
 def basepath(distro, arch):
     return '/var/cache/pbuilder/base-'+distro+'-'+arch+'.cow'
 
-def defaultmirrors(distro):
+def defaultmirrors(distro, arch):
     # cowdancer is in universe?
-    return "deb http://archive.ubuntu.com/ubuntu DISTRO main universe".replace('DISTRO', distro)
+    if (arch == "amd64" or arch == "i386"):
+        # use ubuntu archive for x86 or x64 cowbuilders
+        return "deb http://archive.ubuntu.com/ubuntu DISTRO main universe".replace('DISTRO', distro)
+    else:
+        # use ubuntu ports for other cowbuilders (such as arm)
+        return "deb http://ports.ubuntu.com/ubuntu-ports DISTRO main universe".replace('DISTRO', distro)
 
 def getKeyCommands(keys):
     if len(keys) == 0:
@@ -87,7 +92,7 @@ def make_cowbuilder(distro, arch, keys):
               '--debootstrapopts', '--arch',
               '--debootstrapopts', arch,
               '--basepath', basepath(distro, arch),
-              '--othermirror', defaultmirrors(distro)])
+              '--othermirror', defaultmirrors(distro, arch)])
     else:
         print('cowbuilder already exists for %s-%s' % (distro, arch))
 
