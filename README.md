@@ -101,7 +101,7 @@ Log in as the buildbot user, and do the following:
     echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
     easy_install buildbot==0.8.12 requests
     pip install rosdistro
-    git clone git@github.com:mikeferguson/buildbot-ros.git
+    git clone https://github.com/mikeferguson/buildbot-ros.git
     buildbot create-master buildbot-ros
 
 If using the Pull Request builder, you will also need to:
@@ -122,7 +122,7 @@ installed into, as 'buildbot':
     cd buildbot-ros/scripts
     ./aptrepo-create.bash YourOrganizationName
 
-By default, this script sets up a repository for amd64 and i386 on precise only. You can fully
+By default, this script sets up a repository for amd64 and i386 on trusty only. You can fully
 specify what you want though:
 
     ./aptrepo-create.bash YourOrganizationName "amd64 i386 armel" precise oneiric hardy yeahright
@@ -172,6 +172,11 @@ for the master. Once you have a buildbot user and virtualenv, do the following a
     easy_install buildbot-slave
     echo "export PATH=/home/buildbot/buildbot-ros/scripts:${PATH}" >> buildbot-env/bin/activate
     buildslave create-slave rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
+
+If you are on a diffent machine then you will need to clone the buildbot-ros repo on it as well.
+Again as the buildbot user:
+
+    git clone https://github.com/mikeferguson/buildbot-ros.git
 
 As with the master, change umask to be 0022 in the .tac file.
 It is probably a good idea to change the password (mebuildslotsaros), in both this command and the
