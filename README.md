@@ -1,4 +1,4 @@
-#Buildbot-ROS
+# Buildbot-ROS
 This is a project for building ROS components using [Buildbot](http://buildbot.net/). This is not
 aimed to be a replacement for the ROS buildfarm, but rather a (hopefully) easier to setup system
 for developers wishing to build their own packages, run continuous integration testing, and build
@@ -6,13 +6,13 @@ docs.
 
 Please see the mailing list for discussions about setup, usage, and new features: https://groups.google.com/forum/#!forum/buildbot-ros-sig
 
-##Release Notes
+## Release Notes
 
  * 0.3.0 (forthcoming) - will support REP-143
  * 0.2.0 (02/20/2016) - supports Trusty, adds github pull request builders
  * 0.1.0 (09/13/2014) - first tagged release, does not support Trusty.
 
-##Design Overview
+## Design Overview
 Buildbot uses a single master, and possibly multiple machines building. At present, the setup
 described below will do all builds on the same machine as the master. All of the setup is done under
 a 'buildbot' user account, and we use virtualenv and cowbuilder so that your machine setup is not
@@ -39,27 +39,27 @@ There are also several builders that are not directly related to ROS, but genera
 
 Clearly, this is still a work in progress, but setup is fairly quick for a small set of projects.
 
-##Comparison with ROS buildfarm
+## Comparison with ROS buildfarm
 Buildbot-ROS uses mostly the same underlying tools as the ROS buildfarm. _Bloom_ is still used to
 create gbp releases. _git-buildpackage_ is used to generate debians from the _Bloom_ releases,
 using _cowbuilder_ to build in a chroot rather than _pbuilder_. _reprepro_ is used to update the
 APT repository. Docs are generated using _rosdoc_lite_. The build is defined by a _rosdistro_
 repository, and we use the _python-rosdistro_ package to parse it.
 
-###Major differences from the ROS buildfarm:
+### Major differences from the ROS buildfarm:
  * Buildbot is completely configured in Python. Thus, the configuration for any build is simply a
    Python script, which I found to be more approachable than scripting Jenkins.
  * Source and binary debians for an entire repository, which can consist of several packages and a
    metapackage, are built as one job per ROS/Ubuntu distribution combination.
 
-###Known Limitations:
+### Known Limitations:
  * While jobs are configured from a rosdistro, there currently isn't a scheduler that updates
    based on rosdistro updates (See #3). This is planned, but not implemented. Currently, you can
    make do by having a nightly cronjob that runs 'restart' on the buildbot instance.
  * file:/// repositories are not yet actually being bind-mounted (#10)
  * Test and doc jobs only work on git repositories.
 
-##Setup of ROSdistro
+## Setup of ROSdistro
 Before you can build jobs, you will need a _rosdistro_ repository. The rosdistro format is specified
 in [REP137](http://ros.org/reps/rep-0137.html). You'll need an index.yaml and at least one set of
 distribution files (release.yaml, source.yaml, doc.yaml, *-build.yaml). A complete example of a
@@ -86,7 +86,7 @@ creating one can greatly speed up startup of the buildbot master. To create the 
 And then upload this to the destination of the cache. Currently, buildbot-ros does not update the
 cache automatically.
 
-##Setup for Buildbot Master
+## Setup for Buildbot Master
 Install prerequisites:
 
     sudo apt-get install python-virtualenv python-dev
@@ -146,7 +146,7 @@ crontab. Open up the crontab for the buildbot user by typing `crontab -e`, then 
     0 23 * * * cd /home/buildbot && buildbot restart buildbot-ros
     55 22 * * * cd /var/www/html/rosdistro && rosdistro_build_cache /path/to/index.yaml
 
-###Setup for Pull Requests
+### Setup for Pull Requests
 
 To enable pull requests, the oauth_tokens must be configured. To create an oauth token,
 go to settings under your github account, go to "Personal access tokens" and generate
@@ -159,7 +159,7 @@ a new token for the buildbot, then update the oauth_tokens in master.cfg:
     oauth_tokens["first_repo"] = "1251511615134513413541351acea1ave"
     oauth_tokens["second_repo"] = "1251511615134513413541351acea1ave"
 
-##Setup for Buildbot Slave
+## Setup for Buildbot Slave
 We need a few things installed (remember, buildbot is not in the sudoers, so you should do this
 under your own account):
 
@@ -194,9 +194,9 @@ pbuilder/cowbuilder without a password, by adding the following to your /etc/sud
 
 Note that there is a TAB between buildbot and ALL.
 
-##Known Issues, Hacks, Tricks and Workarounds
+## Known Issues, Hacks, Tricks and Workarounds
 
-###I need to move my gpg key (also known as 'my server has all the entropy of a dead cow!')
+### I need to move my gpg key (also known as 'my server has all the entropy of a dead cow!')
 On the machine with the key
 
     gpg --output key.gpg --armor --export AAAABBBB
@@ -207,10 +207,10 @@ On the other machine:
     gpg --import key.gpg
     gpg --allow-secret-key-import --import secret.gpg
 
-###buildbot will only allow 1000 unique jobs
+### buildbot will only allow 1000 unique jobs
 This will prevent you from loading the entire ROS farm as is, unless different arch/code-name combinations
 are restricted to different buildbots. There is a monkey-patch available here:
 http://trac.buildbot.net/ticket/2045
 
-###private repositories and dependencies
+### private repositories and dependencies
 See https://github.com/mikeferguson/buildbot-ros/blob/master/documentation/private_repositories.md
