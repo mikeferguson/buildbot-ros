@@ -14,7 +14,7 @@ the folder is assumed to be called 'buildbot-ros':
 After building the container, we need to specify a number of bindings
 to make the buildbot work well:
 
-    docker run -d -privileged=true -p 8010:8010 -p 127.0.0.1::22
+    docker run -d --privileged=true -p 8010:8010 -p 127.0.0.1::22
                -v /etc/localtime:/etc/localtime:ro
                -v /var/www/building:/var/www/building:rw
                --name="buildbot-ros" buildbot-ros-image
