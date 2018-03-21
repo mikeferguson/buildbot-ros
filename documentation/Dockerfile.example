@@ -24,7 +24,7 @@ RUN easy_install buildbot-slave
 RUN pip install rosdistro
 RUN git clone -b master git@github.com:mikeferguson/buildbot-ros.git /root/buildbot-ros
 RUN buildbot create-master /root/buildbot-ros
-RUN buildslave create-slave /root/rosbuilder1 localhost:9989 rosbuilder1 mebuildsalotaros
+RUN buildslave create-slave /root/rosbuilder1 localhost:9989 rosbuilder1 mebuildslotsaros
 
 # Fix the file creation defaults
 RUN cp /root/buildbot-ros/buildbot.tac /root/buildbot-ros/buildbot.tac.bk
