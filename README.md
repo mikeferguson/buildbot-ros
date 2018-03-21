@@ -197,6 +197,9 @@ Note that there is a TAB between buildbot and ALL.
 ## Known Issues, Hacks, Tricks and Workarounds
 
 ### I need to move my gpg key (also known as 'my server has all the entropy of a dead cow!')
+While this has been seen on mainly idle servers, this is most commonly an issue on Virtual Machines (See [these](https://serverfault.com/questions/324217/entropy-on-virtual-machines#324235) 
+[links](https://fedoraproject.org/wiki/Features/Virtio_RNG) for more details).
+
 On the machine with the key
 
     gpg --output key.gpg --armor --export AAAABBBB
